@@ -1,0 +1,63 @@
+String secsToHhMmSs(int? seconds) {
+  if (seconds != null && seconds > 0) {
+    final h = seconds ~/ 3600;
+    final m = (seconds - h * 3600) ~/ 60;
+    final s = (seconds - h * 3600 - m * 60);
+
+    return h > 0
+        ? "${h.toString()}h ${m.toString().padLeft(2, '0')}m"
+        : m > 0
+        ? "${m.toString()}m ${s.toString().padLeft(2, '0')}s"
+        : "${s.toString()}s";
+  }
+  return "??m";
+}
+
+String sizeStr(int? size) {
+  if (size != null && size > 0) {
+    final kb = size ~/ 1000;
+    return kb > 1000 ? "${((kb * 10) ~/ 1000) / 10}mb" : "${kb}kb";
+  }
+  return "??kb";
+}
+
+String yymmdd(DateTime? dt, {String fallback = ''}) {
+  return dt?.toIso8601String().split('T').first ?? fallback;
+}
+
+const _month = [
+  "inv", // 0
+  "Jan", // 1
+  "Feb", // 2
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec", // 12
+];
+
+String _twoDigit(int i) {
+  return i.toString().padLeft(2, '0');
+}
+
+String mmddHHMM(DateTime? dt, {String fallback = ''}) {
+  final lo = dt?.toLocal();
+  return lo != null
+      ? '${_month[lo.month]} ${_twoDigit(lo.day)} ${_twoDigit(lo.hour)}:${_twoDigit(lo.minute)}'
+      : fallback;
+}
+
+String? googleFaviconUrl(String? url) {
+  if (url != null) {
+    final uri = Uri.tryParse(url);
+    if (uri != null) {
+      return "https://www.google.com/s2/favicons?domain=${uri.host}&sz=128";
+    }
+  }
+  return null;
+}
