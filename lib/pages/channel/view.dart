@@ -3,7 +3,7 @@ import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../models/channel.dart';
+// import '../../models/channel.dart';
 import 'model.dart';
 
 class ChannelView extends StatefulWidget {
