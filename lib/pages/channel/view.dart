@@ -1,15 +1,11 @@
-import 'dart:io' show File;
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// import '../../models/channel.dart';
-import 'model.dart';
+import '../../shared/widgets.dart' show UrlImage;
+import './model.dart';
 
 class ChannelView extends StatefulWidget {
   final ChannelViewModel model;
-  // final Channel? channel;
-  // const new({super.key, required this.model, required this.channel});
   const new({super.key, required this.model});
 
   @override
@@ -17,14 +13,24 @@ class ChannelView extends StatefulWidget {
 }
 
 class _ChannelViewState extends State<ChannelView> {
+  late final TextEditingController _authorController;
+  late final TextEditingController _imageUrlController;
+  late final TextEditingController _categoryController;
+
   @override
   void initState() {
     super.initState();
+    _authorController = TextEditingController(text: widget.model.author);
+    _imageUrlController = TextEditingController(text: widget.model.imageUrl);
+    _categoryController = TextEditingController(text: widget.model.categories);
     widget.model.addListener(_onViewModelChange);
   }
 
   @override
-  void dispose() {
+  void dispose() async {
+    _authorController.dispose();
+    _imageUrlController.dispose();
+    _categoryController.dispose();
     widget.model.removeListener(_onViewModelChange);
     super.dispose();
   }
@@ -40,6 +46,15 @@ class _ChannelViewState extends State<ChannelView> {
         widget.model.clearSnackMessage();
       }
     }
+    if (_authorController.text != widget.model.author) {
+      _authorController.text = widget.model.author ?? '';
+    }
+    if (_imageUrlController.text != widget.model.imageUrl) {
+      _imageUrlController.text = widget.model.imageUrl ?? '';
+    }
+    if (_categoryController.text != widget.model.categories) {
+      _categoryController.text = widget.model.categories ?? '';
+    }
   }
 
   @override
@@ -49,7 +64,10 @@ class _ChannelViewState extends State<ChannelView> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go("/"),
+          onPressed: () async {
+            // await widget.model.update(_channel);
+            if (context.mounted) context.go("/");
+          },
         ),
         title: ListenableBuilder(
           listenable: widget.model,
@@ -58,124 +76,144 @@ class _ChannelViewState extends State<ChannelView> {
           },
         ),
       ),
-      body: ListenableBuilder(
-        listenable: widget.model,
-        builder: (context, _) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
-            child: widget.model.channel != null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(10.8),
-                        child: Image.file(
-                          File(widget.model.channel!.imagePath),
-                          width: double.infinity,
-                          height: 120,
-                          fit: BoxFit.cover,
-                        ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // channel image
+            ListenableBuilder(
+              listenable: widget.model,
+              builder: (context, _) {
+                return UrlImage(
+                  widget.model.channel?.imageUrl,
+                  height: 100.0,
+                  width: double.maxFinite,
+                );
+              },
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // author
+                Focus(
+                  child: TextFormField(
+                    controller: _authorController,
+                    decoration: InputDecoration(
+                      label: Text('author', style: labelStyle),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  onFocusChange: (value) {
+                    if (!value) {
+                      widget.model.update({'author': _authorController.text});
+                    }
+                  },
+                ),
+                // image url
+                Focus(
+                  child: TextFormField(
+                    controller: _imageUrlController,
+                    decoration: InputDecoration(
+                      label: Text('image url', style: labelStyle),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  onFocusChange: (value) {
+                    if (!value) {
+                      widget.model.update({
+                        'image_url': _imageUrlController.text,
+                      });
+                    }
+                  },
+                ),
+                // categories
+                Focus(
+                  child: TextFormField(
+                    controller: _categoryController,
+                    decoration: InputDecoration(
+                      label: Text('categories', style: labelStyle),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  onFocusChange: (value) {
+                    if (!value) {
+                      widget.model.update({
+                        'categories': _categoryController.text,
+                      });
+                    }
+                  },
+                ),
+                // FIXME: replace with stateless widget
+                // // published
+                // TextFormField(
+                //   readOnly: true,
+                //   initialValue:
+                //       (_published)
+                //           .toString(),
+                //   maxLines: null,
+                //   decoration: InputDecoration(
+                //     label: Text('published', style: labelStyle),
+                //     border: InputBorder.none,
+                //   ),
+                // ),
+                // podcast
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('podcast', style: labelStyle),
+                    ListenableBuilder(
+                      listenable: widget.model,
+                      builder: (context, _) {
+                        return Switch(
+                          value: widget.model.isPodcast,
+                          onChanged: (value) {
+                            widget.model.update({'is_podcast': value});
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                // has content
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('episode has content', style: labelStyle),
+                    ListenableBuilder(
+                      listenable: widget.model,
+                      builder: (context, _) {
+                        return Switch(
+                          value: widget.model.hasContent,
+                          onChanged: (value) {
+                            widget.model.update({'has_content': value});
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                // space
+                SizedBox(height: 32.0),
+                // cancel the channel
+                Center(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
                       ),
-                      Form(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // subtitle
-                            TextFormField(
-                              initialValue:
-                                  widget.model.channel!.subtitle ?? '',
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                label: Text('subtitle', style: labelStyle),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            // author
-                            TextFormField(
-                              initialValue: widget.model.channel!.author ?? '',
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                label: Text('author', style: labelStyle),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            // description
-                            TextFormField(
-                              initialValue:
-                                  widget.model.channel!.description ?? '',
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                label: Text('description', style: labelStyle),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            // language
-                            TextFormField(
-                              readOnly: true,
-                              initialValue:
-                                  widget.model.channel!.language ?? '',
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                label: Text('language', style: labelStyle),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            // categories
-                            TextFormField(
-                              initialValue:
-                                  widget.model.channel!.categories ?? '',
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                label: Text('categories', style: labelStyle),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            // categories
-                            TextFormField(
-                              readOnly: true,
-                              initialValue:
-                                  (widget.model.channel!.published ??
-                                          widget.model.channel!.updated)
-                                      .toString(),
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                label: Text('published', style: labelStyle),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('podcast', style: labelStyle),
-                                Switch(value: true, onChanged: (bool value) {}),
-                              ],
-                            ),
-                            SizedBox(height: 32.0),
-                            Center(
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                  foregroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .error,
-                                ),
-                                onPressed: () => widget.model.unsubscribe(
-                                  widget.model.channel!.id,
-                                ),
-                                child: Text('Cancel this channel'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                : Center(child: Text('Invalid channel data')),
-          );
-        },
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    onPressed: () => widget.model.unsubscribe(),
+                    child: Text('Cancel this channel'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

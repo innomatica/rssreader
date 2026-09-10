@@ -56,11 +56,11 @@ class Episode {
     this.mediaSeekPos,
     this.imageUrl,
     this.extras,
+    this.channelId,
     this.downloaded,
     this.hidden,
     this.liked,
-    // from channel
-    this.channelId,
+    // from JOIN with channel
     this.channelUrl,
     this.channelTitle,
     this.channelImageUrl,

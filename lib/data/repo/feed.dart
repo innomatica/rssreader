@@ -14,25 +14,32 @@ import '../../models/feed.dart';
 // import '../../models/label.dart';
 import '../../shared/constants.dart';
 // import '../../shared/helpers.dart';
-import '../service/api/pcindex.dart';
+// import '../service/api/pcindex.dart';
 import '../service/local/sqflite.dart';
 import '../service/local/storage.dart';
 
 class FeedRepository {
   final DatabaseService _dbSrv;
-  final PCIndexService _pcIdx;
+  // final PCIndexService _pcIdx;
   final StorageService _stSrv;
 
   new({
     required DatabaseService dbSrv,
-    required PCIndexService pcIdx,
+    // required PCIndexService pcIdx,
     required StorageService stSrv,
   }) : _dbSrv = dbSrv,
-       _pcIdx = pcIdx,
+       //  _pcIdx = pcIdx,
        _stSrv = stSrv;
 
   final _unesc = HtmlUnescape();
   final _logger = Logger('FeedRepository');
+
+  String sanitizeXml(String input) {
+    return input.replaceAll(
+      RegExp(r'<br\s*\/?>', caseSensitive: false),
+      '<br />',
+    );
+  }
 
   // feed
   Future<Feed?> fetchFeed(String url) async {
@@ -41,7 +48,8 @@ class FeedRepository {
       if (res.statusCode == 200 &&
           res.headers['content-type']?.contains("xml") == true) {
         final document = XmlDocument.parse(
-          _unesc.convert(utf8.decode(res.bodyBytes)),
+          // _unesc.convert(utf8.decode(res.bodyBytes)),
+          sanitizeXml(utf8.decode(res.bodyBytes)),
         );
         // first children
         final children = document.childElements;
@@ -152,6 +160,7 @@ class FeedRepository {
       );
       // create thumbnail when channel is created successfully
       if (res > 0) {
+        /*
         // download channel image
         if (channel.imageUrl == null ||
             await _downloadResource(
@@ -176,7 +185,23 @@ class FeedRepository {
             ),
           );
         }
+        */
       }
+      return res;
+    } on Exception catch (e) {
+      // rethrow;
+      _logger.severe(e.toString());
+      return 0;
+    }
+  }
+
+  Future<int> updateChannel(int channelId, Map<String, dynamic> params) async {
+    try {
+      final sets = params.keys.map((e) => '$e = ?').join(',');
+      final res = await _dbSrv.update(
+        "UPDATE channels SET $sets WHERE id = ?",
+        [...params.values, channelId],
+      );
       return res;
     } on Exception catch (e) {
       // rethrow;
@@ -274,6 +299,11 @@ class FeedRepository {
   }
 
   Future<bool> downloadEpisode(Episode episode) async {
+    if (episode.channelId != null) {
+      await updateEpisode(episode.id, {"downloaded": 1});
+      return true;
+    }
+    /*
     if (episode.channelId != null && episode.mediaUrl != null) {
       if (await _downloadResource(
         episode.channelId!,
@@ -287,6 +317,7 @@ class FeedRepository {
         return true;
       }
     }
+    */
     return false;
   }
 

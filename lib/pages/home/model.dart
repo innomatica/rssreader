@@ -12,17 +12,34 @@ class HomeViewModel extends ChangeNotifier {
   final _log = Logger('HomeViewModel');
   final _episodes = <Episode>[];
   final _channels = <Channel>[];
-  bool _isPodcast = false;
+  String _episodeType = 'any';
 
   String _snackMessage = "";
 
   List<Episode> get episodes =>
-      _episodes.where((e) => e.isPodcast == _isPodcast).toList()
+      _episodes
+          .where(
+            (e) => _episodeType == 'any'
+                ? true
+                : _episodeType == 'podcast'
+                ? e.isPodcast == true
+                : e.isPodcast == false,
+          )
+          .toList()
         ..sort((a, b) => b.published.compareTo(a.published));
   List<Channel> get channels =>
-      _channels..sort((a, b) => (a.title ?? '').compareTo(b.title ?? ''));
+      _channels
+          .where(
+            (e) => _episodeType == 'any'
+                ? true
+                : _episodeType == 'podcast'
+                ? e.isPodcast == true
+                : e.isPodcast == false,
+          )
+          .toList()
+        ..sort((a, b) => (a.title ?? '').compareTo(b.title ?? ''));
   String get snackMessage => _snackMessage;
-  bool get isPodcast => _isPodcast;
+  String get episodeType => _episodeType;
 
   // ignore: prefer_initializing_formals
   new({required FeedRepository feedRepo}) : _feedRepo = feedRepo;
@@ -30,7 +47,7 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> load() async {
     _channels.clear();
     _channels.addAll(await _feedRepo.getChannels());
-    _log.fine(_channels);
+    // _log.fine(_channels);
     notifyListeners();
 
     _episodes.clear();
@@ -40,9 +57,12 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  void selectPodcasts(bool flag) {
-    _isPodcast = flag;
-    _log.fine(_isPodcast);
+  void selectEpisodeType(String newType) {
+    if (_episodeType == newType) {
+      _episodeType = 'any';
+    } else {
+      _episodeType = newType;
+    }
     notifyListeners();
   }
 

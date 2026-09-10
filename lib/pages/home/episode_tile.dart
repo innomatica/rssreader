@@ -4,7 +4,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../shared/helpers.dart' show secsToHhMmSs, sizeStr, mmddHHMM;
-import '../../shared/widgets.dart' show ChannelImage;
+import '../../shared/widgets.dart' show UrlImage;
 import '../../models/episode.dart';
 
 class EpisodeTile extends StatelessWidget {
@@ -30,7 +30,13 @@ class EpisodeTile extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadiusGeometry.circular(5.0),
-                  child: ChannelImage(episode, width: 60, height: 60),
+                  // child: ChannelImage(episode, width: 60, height: 60),
+                  child: UrlImage(
+                    episode.channelImageUrl,
+                    width: 60.0,
+                    height: 60.0,
+                    borderRadius: 2.0,
+                  ),
                 ),
                 Expanded(
                   child: Column(
@@ -90,7 +96,12 @@ class EpisodeTile extends StatelessWidget {
                             child: Row(
                               spacing: 8.0,
                               children: [
-                                ChannelImage(episode, width: 16, height: 16),
+                                UrlImage(
+                                  episode.channelImageUrl,
+                                  width: 16,
+                                  height: 16,
+                                  borderRadius: 2.0,
+                                ),
                                 Flexible(
                                   child: Text(
                                     episode.channelTitle ?? "",
@@ -109,11 +120,10 @@ class EpisodeTile extends StatelessWidget {
                       ),
                       // image
                       episode.imageUrl != null
-                          ? Image.network(
+                          ? UrlImage(
                               episode.imageUrl!,
-                              height: 180,
                               width: double.maxFinite,
-                              fit: BoxFit.cover,
+                              height: 180,
                             )
                           : SizedBox(),
                       // title
@@ -151,10 +161,11 @@ class EpisodeTile extends StatelessWidget {
                                 Row(
                                   spacing: 8.0,
                                   children: [
-                                    ChannelImage(
-                                      episode,
+                                    UrlImage(
+                                      episode.channelImageUrl,
                                       width: 16,
                                       height: 16,
+                                      borderRadius: 2.0,
                                     ),
                                     Text(
                                       episode.channelTitle ?? "",

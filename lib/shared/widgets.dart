@@ -1,158 +1,74 @@
-import 'dart:io' show File;
-
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart' show Logger;
 
-import '../models/channel.dart';
-import '../models/episode.dart';
 import './constants.dart'
-    show assetImgPodcaster, defaultChannelImg, defaultEpisodeImg;
+    show defaultChannelImg, defaultEpisodeImg, placeholderImage;
 
-class ChannelImage extends StatelessWidget {
-  final dynamic item;
+class UrlImage extends StatelessWidget {
+  final String? url;
   final double? width;
   final double? height;
-  final double? opacity;
-  ChannelImage(
-    this.item, {
+  final double opacity;
+  final BoxFit fit;
+  final double borderRadius;
+  const UrlImage(
+    this.url, {
     super.key,
-    // required this.item,
     this.width,
     this.height,
-    this.opacity,
+    this.opacity = 1.0,
+    this.fit = BoxFit.cover,
+    this.borderRadius = 5.0,
   });
-
-  final _logger = Logger("ChannelImage");
 
   @override
   Widget build(BuildContext context) {
-    try {
-      return item is Channel
-          ? Image.file(
-              File(item.imagePath),
-              width: width,
-              height: height,
-              fit: BoxFit.cover,
-              opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-              errorBuilder: (context, error, stackTrace) {
-                _logger.fine('error:$error');
-                return Image.network(
-                  item.imageUrl,
+    return ClipRRect(
+      borderRadius: BorderRadiusGeometry.circular(borderRadius),
+      child: Stack(
+        children: <Widget>[
+          SizedBox(
+            width: width,
+            height: height,
+            child: Center(
+              child:
+                  width == null ||
+                      height == null ||
+                      width! < 20.0 ||
+                      height! < 20.0
+                  ? null
+                  : SizedBox(
+                      width: 20.0,
+                      height: 20.0,
+                      child: CircularProgressIndicator(),
+                    ),
+            ),
+          ),
+          url != null
+              ? FadeInImage.memoryNetwork(
+                  placeholder: placeholderImage,
+                  image: url!,
                   width: width,
                   height: height,
-                  fit: BoxFit.cover,
-                  opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-                );
-              },
-            )
-          : item is Episode
-          ? Image.file(
-              File(item.channelImagePath),
-              width: width,
-              height: height,
-              fit: BoxFit.cover,
-              opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-              errorBuilder: (context, error, stackTrace) {
-                return Image.network(
-                  item.channelImageUrl,
-                  width: width,
-                  height: height,
-                  fit: BoxFit.cover,
-                  opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-                );
-              },
-            )
-          : _getAssetImage(
-              defaultChannelImg,
-              width: width,
-              height: height,
-              opacity: opacity,
-            );
-    } catch (e) {
-      _logger.warning(e.toString());
-      return _getAssetImage(
-        assetImgPodcaster,
-        width: width,
-        height: height,
-        opacity: opacity,
-      );
-    }
-  }
-}
-
-class EpisodeImage extends StatelessWidget {
-  final Episode episode;
-  final double? width;
-  final double? height;
-  final double? opacity;
-  EpisodeImage(
-    this.episode, {
-    super.key,
-    // required this.item,
-    this.width,
-    this.height,
-    this.opacity,
-  });
-
-  final _logger = Logger("ChannelImage");
-
-  @override
-  Widget build(BuildContext context) {
-    try {
-      return Image.file(
-        File(episode.imagePath),
-        width: width,
-        height: height,
-        fit: BoxFit.cover,
-        opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-        errorBuilder: (_, _, _) {
-          return episode.imageUrl != null
-              ? Image.network(
-                  episode.imageUrl!,
-                  width: width,
-                  height: height,
-                  fit: BoxFit.cover,
-                  opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-                  errorBuilder: (_, _, _) => _getAssetImage(
-                    defaultEpisodeImg,
-                    width: width,
-                    height: height,
-                    opacity: opacity,
-                  ),
+                  fit: fit,
+                  imageErrorBuilder: (context, error, stackTrace) {
+                    return StockImage(
+                      assetName: defaultEpisodeImg,
+                      width: width,
+                      height: height,
+                      fit: fit,
+                    );
+                  },
                 )
-              : _getAssetImage(
-                  defaultEpisodeImg,
+              : StockImage(
+                  assetName: defaultChannelImg,
                   width: width,
                   height: height,
-                  opacity: opacity,
-                );
-        },
-      );
-    } catch (e) {
-      _logger.warning(e.toString());
-      return _getAssetImage(
-        defaultEpisodeImg,
-        width: width,
-        height: height,
-        opacity: opacity,
-      );
-    }
+                  fit: fit,
+                ),
+        ],
+      ),
+    );
   }
-}
-
-Image _getAssetImage(
-  String assetName, {
-  double? width,
-  double? height,
-  double? opacity,
-}) {
-  return Image.asset(
-    assetName,
-    width: width,
-    height: height,
-    fit: BoxFit.cover,
-    opacity: AlwaysStoppedAnimation(opacity ?? 1.0),
-  );
 }
 
 IconData mediaIcon(String? mediaType) {
@@ -160,4 +76,32 @@ IconData mediaIcon(String? mediaType) {
     return Icons.volume_up_rounded;
   }
   return Icons.question_mark_rounded;
+}
+
+class StockImage extends StatelessWidget {
+  final String assetName;
+  final double? width;
+  final double? height;
+  final double opacity;
+  final BoxFit fit;
+
+  const StockImage({
+    super.key,
+    required this.assetName,
+    this.width,
+    this.height,
+    this.opacity = 1.0,
+    this.fit = BoxFit.cover,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      assetName,
+      width: width,
+      height: height,
+      fit: fit,
+      opacity: AlwaysStoppedAnimation(opacity),
+    );
+  }
 }

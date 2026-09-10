@@ -1,3 +1,6 @@
+import 'dart:convert' show base64Decode;
+import 'dart:typed_data' show Uint8List;
+
 const appName = "RSS Reader";
 const appVersion = '0.0.1+1';
 const appId = 'ca.innomatic.rssread';
@@ -9,10 +12,15 @@ const pcIdxEndpoint = 'https://api.podcastindex.org/api/1.0';
 const pcIdxHost = 'api.podcastindex.org';
 
 // asset images
-const assetImgMicrophone = 'assets/image/microphone.png';
+const assetImgMicrophone = 'assets/images/microphone.png';
 const assetImgNewspaper = 'assets/images/newspaper.png';
 const assetImgPodcaster = 'assets/images/podcaster.png';
 const assetImgRssIcon = 'assets/images/rssicon.png';
+
+// placeholder
+final Uint8List placeholderImage = base64Decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOcUA8AAaUBEbsdPJQAAAAASUVORK5CYII=',
+);
 
 // retention days
 final dataRetentionPeriod = 30;
@@ -46,10 +54,7 @@ const List<Map<String, String>> rssDirectories = [
     "url": 'https://lighthouseapp.io/tools/feed-finder',
   },
   {"title": 'Open RSS', "url": 'https://openrss.org/'},
-  // {
-  //   "title": "RSS.com: Community's Podcast",
-  //   "url": 'https://rss.com/community/',
-  // },
+  {"title": "Podnews.net", "url": 'https://podnews.net/podcasts'},
   // {
   //   "title": 'RSS.com: Podcast RSS Feed Finder',
   //   "url": 'https://rss.com/tools/find-my-feed/',

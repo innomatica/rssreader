@@ -23,6 +23,7 @@ class Channel {
   bool? isPodcast;
   bool? hasContent;
   Map<String, dynamic>? extras;
+  // from JOIN
   List<dynamic>? labels;
 
   Channel({

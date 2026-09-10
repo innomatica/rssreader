@@ -2,7 +2,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rssread/shared/constants.dart' show urlDefaultSearchEngine;
 
-// import '../models/channel.dart';
 import '../models/feed.dart';
 import '../pages/channel/model.dart';
 import '../pages/channel/view.dart';

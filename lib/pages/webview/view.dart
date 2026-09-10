@@ -3,9 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'model.dart';
-
-// import 'package:webview_flutter_android/webview_flutter_android.dart';
+import './model.dart';
 
 class WebView extends StatefulWidget {
   final String initialUrl;

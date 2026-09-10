@@ -61,10 +61,12 @@ class _HomeViewState extends State<HomeView> {
             listenable: widget.model,
             builder: (context, _) {
               return TextButton(
-                onPressed: () => widget.model.selectPodcasts(false),
+                onPressed: () => widget.model.selectEpisodeType('news'),
                 child: Text(
                   'news',
-                  style: widget.model.isPodcast == false ? selectedStyle : null,
+                  style: widget.model.episodeType == 'news'
+                      ? selectedStyle
+                      : null,
                 ),
               );
             },
@@ -73,10 +75,12 @@ class _HomeViewState extends State<HomeView> {
             listenable: widget.model,
             builder: (context, _) {
               return TextButton(
-                onPressed: () => widget.model.selectPodcasts(true),
+                onPressed: () => widget.model.selectEpisodeType('podcast'),
                 child: Text(
                   'podcast',
-                  style: widget.model.isPodcast == true ? selectedStyle : null,
+                  style: widget.model.episodeType == 'podcast'
+                      ? selectedStyle
+                      : null,
                 ),
               );
             },

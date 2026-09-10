@@ -2,7 +2,6 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart' show SingleChildWidget;
 
 import '../data/repo/feed.dart';
-import '../data/service/api/pcindex.dart';
 import '../data/service/local/sqflite.dart';
 import '../data/service/local/storage.dart';
 import '../pages/channel/model.dart';
@@ -14,7 +13,7 @@ List<SingleChildWidget> get providers => [
   Provider(
     create: (context) => FeedRepository(
       dbSrv: DatabaseService(),
-      pcIdx: PCIndexService(),
+      // pcIdx: PCIndexService(),
       stSrv: StorageService(),
     ),
   ),
