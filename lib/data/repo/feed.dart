@@ -3,7 +3,7 @@
 import 'dart:convert' show utf8;
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:html_unescape/html_unescape.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:xml/xml.dart';

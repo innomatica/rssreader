@@ -45,7 +45,6 @@ dependencies:
   crypto: ^3.0.7
   just_audio: ^0.10.6
   just_audio_background: ^0.0.1-beta.17
-  html_unescape: ^2.0.0
   webview_flutter: ^4.14.1
   flutter_widget_from_html: ^0.17.3
   timeago: ^3.7.1
