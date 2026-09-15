@@ -167,7 +167,7 @@ class _SearchViewState extends State<SearchView> {
             ExpansionPanelRadio(
               value: 1,
               headerBuilder: (context, isExpanded) {
-                return ListTile(title: Text('RSS Finders'));
+                return ListTile(title: Text('RSS Directories'));
               },
               body: Container(
                 width: double.maxFinite,

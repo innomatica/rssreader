@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../shared/widgets.dart' show UrlImage;
 import './channel_tile.dart';
 import './episode_tile.dart';
 import '../../pages/home/model.dart';
@@ -61,10 +62,10 @@ class _HomeViewState extends State<HomeView> {
             listenable: widget.model,
             builder: (context, _) {
               return TextButton(
-                onPressed: () => widget.model.selectEpisodeType('news'),
+                onPressed: () => widget.model.selectEpisodeType('article'),
                 child: Text(
-                  'news',
-                  style: widget.model.episodeType == 'news'
+                  'article',
+                  style: widget.model.episodeType == 'article'
                       ? selectedStyle
                       : null,
                 ),
@@ -100,12 +101,15 @@ class _HomeViewState extends State<HomeView> {
             builder: (context, _) {
               return ListView.separated(
                 key: const PageStorageKey('episode_list_key'),
-                separatorBuilder: (context, _) =>
-                    Divider(indent: 0, endIndent: 0, height: 0),
+                separatorBuilder: (context, _) => Padding(
+                  padding: const .only(bottom: 8.0, left: 8.0, right: 8.0),
+                  child: Divider(indent: 0, endIndent: 0, height: 0),
+                ),
                 itemCount: widget.model.episodes.length,
                 itemBuilder: (context, index) {
                   return EpisodeTile(
                     episode: widget.model.episodes.elementAt(index),
+                    model: widget.model,
                   );
                 },
               );
@@ -125,7 +129,137 @@ class _HomeViewState extends State<HomeView> {
               );
             },
           ),
-          Center(child: Text('player')),
+          // player
+          Center(
+            child: Column(
+              crossAxisAlignment: .center,
+              mainAxisAlignment: .center,
+              spacing: 16.0,
+              children: [
+                UrlImage(
+                  widget.model.currentPlayingEpisode?.channelImageUrl,
+                  width: 200,
+                  height: 200,
+                  borderRadius: 8.0,
+                ),
+                Row(
+                  mainAxisSize: .max,
+                  mainAxisAlignment: .center,
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.skip_previous_rounded),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.replay_30_rounded),
+                    ),
+                    ListenableBuilder(
+                      listenable: widget.model,
+                      builder: (context, _) {
+                        return IconButton(
+                          onPressed: () => widget.model.playPause(),
+                          icon: widget.model.playing
+                              ? Icon(Icons.pause_rounded, size: 50.0)
+                              : Icon(Icons.play_arrow_rounded, size: 50.0),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.forward_30_rounded),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.skip_next_rounded),
+                    ),
+                  ],
+                ),
+                Container(
+                  height: 200,
+                  padding: .symmetric(horizontal: 20.0),
+                  child: ListView.builder(
+                    itemCount: widget.model.sequence.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(
+                          widget.model.sequence[index].tag.extras['title'] ??
+                              'unknown',
+                          maxLines: 1,
+                          overflow: .ellipsis,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Center(
+          //   child: Wrap(
+          //     children: [
+          //       // channel Image
+          //       UrlImage(
+          //         widget.model.currentPlayingEpisode?.channelImageUrl,
+          //         width: 200,
+          //         height: 200,
+          //         borderRadius: 2.0,
+          //       ),
+          //       SizedBox(
+          //         width: 400,
+          //         height: 200,
+          //         child: Column(
+          //           crossAxisAlignment: .center,
+          //           children: [
+          //             Expanded(
+          //               child: ListView.builder(
+          //                 itemCount: widget.model.sequence.length,
+          //                 itemBuilder: (context, index) {
+          //                   return ListTile(
+          //                     title:
+          //                         widget
+          //                             .model
+          //                             .sequence[index]
+          //                             .tag
+          //                             .extras['title'] ??
+          //                         'unknown',
+          //                   );
+          //                 },
+          //               ),
+          //             ),
+          //             Center(
+          //               child: Row(
+          //                 children: [
+          //                   IconButton(
+          //                     onPressed: () {},
+          //                     icon: Icon(Icons.skip_previous_rounded),
+          //                   ),
+          //                   IconButton(
+          //                     onPressed: () {},
+          //                     icon: Icon(Icons.replay_30_rounded),
+          //                   ),
+          //                   IconButton(
+          //                     onPressed: () {},
+          //                     icon: Icon(Icons.play_arrow_rounded),
+          //                   ),
+          //                   IconButton(
+          //                     onPressed: () {},
+          //                     icon: Icon(Icons.forward_30_rounded),
+          //                   ),
+          //                   IconButton(
+          //                     onPressed: () {},
+          //                     icon: Icon(Icons.skip_next_rounded),
+          //                   ),
+          //                 ],
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ][currentPageIndex],
       ),
       bottomNavigationBar: NavigationBar(

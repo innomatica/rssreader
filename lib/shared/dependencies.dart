@@ -1,3 +1,4 @@
+import 'package:just_audio/just_audio.dart' show AudioPlayer;
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart' show SingleChildWidget;
 
@@ -10,16 +11,20 @@ import '../pages/search/model.dart';
 import '../pages/webview/model.dart';
 
 List<SingleChildWidget> get providers => [
+  Provider(create: (context) => AudioPlayer()),
   Provider(
     create: (context) => FeedRepository(
       dbSrv: DatabaseService(),
       // pcIdx: PCIndexService(),
       stSrv: StorageService(),
+      player: context.read<AudioPlayer>(),
     ),
   ),
   ChangeNotifierProvider(
-    create: (context) =>
-        HomeViewModel(feedRepo: context.read<FeedRepository>()),
+    create: (context) => HomeViewModel(
+      feedRepo: context.read<FeedRepository>(),
+      player: context.read<AudioPlayer>(),
+    ),
   ),
   ChangeNotifierProvider(
     create: (context) =>

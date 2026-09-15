@@ -13,6 +13,7 @@ class Channel {
   String? author;
   String? categories;
   String? description;
+  String? content;
   String? language;
   String? link;
   DateTime? published;
@@ -34,6 +35,7 @@ class Channel {
     this.author,
     this.categories,
     this.description,
+    this.content,
     this.language,
     this.link,
     this.published,
@@ -60,6 +62,7 @@ class Channel {
         url: data['url'],
         link: data['link'],
         description: data['description'],
+        content: data['content'],
         author: data['author'],
         imageUrl: data['image'] ?? googleFaviconUrl(data['link']),
         language: data['language'],
@@ -96,6 +99,7 @@ class Channel {
       author: row['author'] as String?,
       categories: row['categories'] as String?,
       description: row['description'] as String?,
+      content: row['content'] as String?,
       language: row['language'] as String?,
       link: row['link'] as String?,
       updated: DateTime.tryParse(row['updated'] as String? ?? ""),
@@ -124,6 +128,7 @@ class Channel {
       "author": author,
       "categories": categories,
       "description": description,
+      "content": content,
       "language": language,
       "link": link,
       "updated": updated?.toIso8601String(),

@@ -2,9 +2,10 @@
 
 import 'dart:convert' show utf8;
 
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart' show AudioPlayer, AudioSource;
+import 'package:just_audio_background/just_audio_background.dart'
+    show MediaItem;
 import 'package:logging/logging.dart';
 import 'package:xml/xml.dart';
 
@@ -22,24 +23,26 @@ class FeedRepository {
   final DatabaseService _dbSrv;
   // final PCIndexService _pcIdx;
   final StorageService _stSrv;
+  final AudioPlayer _player;
 
   new({
     required DatabaseService dbSrv,
     // required PCIndexService pcIdx,
     required StorageService stSrv,
+    required AudioPlayer player,
   }) : _dbSrv = dbSrv,
        //  _pcIdx = pcIdx,
-       _stSrv = stSrv;
+       _stSrv = stSrv,
+       _player = player;
 
-  final _unesc = HtmlUnescape();
   final _logger = Logger('FeedRepository');
 
-  String sanitizeXml(String input) {
-    return input.replaceAll(
-      RegExp(r'<br\s*\/?>', caseSensitive: false),
-      '<br />',
-    );
-  }
+  // String sanitizeXml(String input) {
+  //   return input.replaceAll(
+  //     RegExp(r'<br\s*\/?>', caseSensitive: false),
+  //     '<br />',
+  //   );
+  // }
 
   // feed
   Future<Feed?> fetchFeed(String url) async {
@@ -48,8 +51,13 @@ class FeedRepository {
       if (res.statusCode == 200 &&
           res.headers['content-type']?.contains("xml") == true) {
         final document = XmlDocument.parse(
-          // _unesc.convert(utf8.decode(res.bodyBytes)),
-          sanitizeXml(utf8.decode(res.bodyBytes)),
+          // fix unclosed <br> tag
+          utf8
+              .decode(res.bodyBytes)
+              .replaceAll(
+                RegExp(r'<br\s*\/?>', caseSensitive: false),
+                '<br />',
+              ),
         );
         // first children
         final children = document.childElements;

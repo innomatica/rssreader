@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:just_audio_background/just_audio_background.dart'
+    show JustAudioBackground;
 import 'package:logging/logging.dart' show Logger, Level;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' show MultiProvider;
@@ -9,7 +11,7 @@ import 'package:path_provider/path_provider.dart'
 import 'shared/constants.dart' show appName, appDocPath;
 import 'shared/routing.dart' show router;
 
-void main() async {
+Future<void> main() async {
   Logger.root.level = kDebugMode ? Level.FINE : Level.WARNING;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
@@ -19,6 +21,12 @@ void main() async {
   });
   // application document directory path
   WidgetsFlutterBinding.ensureInitialized();
+  // initialize just audio background
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   appDocPath = (await getApplicationDocumentsDirectory()).path;
 
   runApp(MultiProvider(providers: providers, child: const MyApp()));

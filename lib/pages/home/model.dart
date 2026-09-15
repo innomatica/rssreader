@@ -1,4 +1,12 @@
+// ignore_for_file: prefer_initializing_formals
+
+import 'dart:async';
+
 import 'package:flutter/material.dart' show ChangeNotifier;
+import 'package:just_audio/just_audio.dart'
+    show AudioPlayer, AudioSource, IndexedAudioSource, ProcessingState;
+import 'package:just_audio_background/just_audio_background.dart'
+    show MediaItem;
 import 'package:logging/logging.dart' show Logger;
 
 import '../../data/repo/feed.dart' show FeedRepository;
@@ -9,12 +17,65 @@ import '../../models/episode.dart' show Episode;
 
 class HomeViewModel extends ChangeNotifier {
   final FeedRepository _feedRepo;
+  final AudioPlayer _player;
+
+  new({required FeedRepository feedRepo, required AudioPlayer player})
+    : _feedRepo = feedRepo,
+      _player = player {
+    _init();
+  }
+
   final _log = Logger('HomeViewModel');
   final _episodes = <Episode>[];
   final _channels = <Channel>[];
-  String _episodeType = 'any';
+  final _sequence = <IndexedAudioSource>[];
 
+  late StreamSubscription _subPlayerState;
+  late StreamSubscription _subSeqState;
+  String _episodeType = 'any';
   String _snackMessage = "";
+  String? _currentPlayingId;
+  bool? _playing;
+
+  String? get currentPlayingId => _currentPlayingId;
+  Episode? get currentPlayingEpisode =>
+      _episodes.where((e) => e.guid == _currentPlayingId).firstOrNull;
+  bool get playing => _playing == true;
+  List<IndexedAudioSource> get sequence => _sequence;
+
+  void _init() async {
+    _subPlayerState = _player.playerStateStream.listen((event) async {
+      _log.fine(event.playing);
+      _log.fine(event.processingState);
+      if (event.processingState == ProcessingState.loading ||
+          event.processingState == ProcessingState.buffering) {
+      } else if (event.playing == true) {
+        _playing = true;
+        notifyListeners();
+      } else {
+        _playing = false;
+        notifyListeners();
+      }
+    });
+    _subSeqState = _player.sequenceStateStream.listen((event) async {
+      final src = event.currentSource;
+      _log.fine(event.sequence);
+      _log.fine(event.currentIndex);
+      _log.fine(event.currentSource);
+      _log.fine(event.currentSource?.tag);
+      _currentPlayingId = (src?.tag as MediaItem?)?.extras?['guid'];
+      notifyListeners();
+      _sequence.clear();
+      _sequence.addAll(event.sequence);
+    });
+  }
+
+  @override
+  void dispose() {
+    _subPlayerState.cancel();
+    _subSeqState.cancel();
+    super.dispose();
+  }
 
   List<Episode> get episodes =>
       _episodes
@@ -40,9 +101,6 @@ class HomeViewModel extends ChangeNotifier {
         ..sort((a, b) => (a.title ?? '').compareTo(b.title ?? ''));
   String get snackMessage => _snackMessage;
   String get episodeType => _episodeType;
-
-  // ignore: prefer_initializing_formals
-  new({required FeedRepository feedRepo}) : _feedRepo = feedRepo;
 
   Future<void> load() async {
     _channels.clear();
@@ -98,4 +156,31 @@ class HomeViewModel extends ChangeNotifier {
   void clearSnackMessage() {
     _snackMessage = '';
   }
+
+  Future playEpisode(Episode episode) async {
+    if (_player.playing) {
+      await _player.stop();
+      return;
+    }
+    if (episode.mediaType?.contains('audio') == true &&
+        episode.mediaUrl != null) {
+      final source = AudioSource.uri(
+        Uri.parse(episode.mediaUrl!),
+        tag: MediaItem(
+          id: '1',
+          title: episode.title ?? 'title unknown',
+          artUri: Uri.tryParse(episode.channelImageUrl ?? ''),
+          extras: {"guid": episode.guid, "title": episode.title ?? "unknown"},
+        ),
+      );
+      _player.setAudioSource(source);
+      _player.play();
+    }
+  }
+
+  Future playPause() async {
+    _player.playing ? _player.pause() : _player.play();
+  }
+
+  Future forward() async {}
 }

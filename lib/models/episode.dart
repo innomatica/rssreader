@@ -9,6 +9,7 @@ class Episode {
   String? subtitle;
   String? author;
   String? description;
+  String? content;
   String? language;
   String? categories;
   String? keywords;
@@ -28,12 +29,13 @@ class Episode {
   bool? liked;
   // filled after channel save
   int? channelId;
-  // from channel
+  // from join with channel
   String? channelUrl;
   String? channelTitle;
   String? channelImageUrl;
   bool? isPodcast;
   bool? hasContent;
+  // from joint table
   List<dynamic>? labels;
 
   Episode({
@@ -43,6 +45,7 @@ class Episode {
     this.subtitle,
     this.author,
     this.description,
+    this.content,
     this.language,
     this.categories,
     this.keywords,
@@ -69,8 +72,8 @@ class Episode {
     this.labels,
   });
 
-  String get imagePath => "$appDocPath/$channelId/$id";
-  String get channelImagePath => "$appDocPath/$channelId/$chnImgFname";
+  // String get imagePath => "$appDocPath/$channelId/$id";
+  // String get channelImagePath => "$appDocPath/$channelId/$chnImgFname";
   // url could be used as guid
   String get mediaFname => guid.replaceAll('/', '\\');
   String? get imageFname =>
@@ -84,6 +87,7 @@ class Episode {
       subtitle: row['subtitle'] as String?,
       author: row['author'] as String?,
       description: row['description'] as String?,
+      content: row['content'] as String?,
       language: row['language'] as String?,
       categories: row['categories'] as String?,
       keywords: row['keywords'] as String?,
@@ -126,6 +130,7 @@ class Episode {
       "subtitle": subtitle,
       "author": author,
       "description": description,
+      "content": content,
       "language": language,
       "categories": categories,
       "keywords": keywords,

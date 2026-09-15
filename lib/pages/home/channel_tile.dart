@@ -12,6 +12,7 @@ class ChannelTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => context.go('/channel/${channel.id}'),
+      // onTap: () => print('channel:$channel'),
       child: SizedBox(
         width: 120.0,
         height: 140.0,

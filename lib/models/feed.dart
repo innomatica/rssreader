@@ -14,7 +14,7 @@ class Feed {
   Feed({required this.channel, required this.episodes});
 
   // ignore: unused_field
-  static final _logger = Logger('Feed');
+  static final _log = Logger('Feed');
 
   @override
   String toString() {
@@ -26,7 +26,7 @@ class Feed {
 
   // RSS: https://www.rssboard.org/rss-specification
   factory Feed.fromRss(XmlElement root, String url) {
-    _logger.fine('rss');
+    _log.fine('rss');
     final chnlElem = root.getElement('channel');
     final namespaces = root.attributes
         .where((e) => e.name.prefix == 'xmlns')
@@ -101,6 +101,9 @@ class Feed {
         );
         // apply namespaces
         episode = _applyNamespaces(episode, namespaces, itemElem);
+        channel.hasContent =
+            episode.content?.isNotEmpty == true ||
+            episode.description?.isNotEmpty == true;
 
         // the first published is the latest
         latest = latest ?? episode.published;
@@ -111,9 +114,7 @@ class Feed {
         // when link is null use channel link
         episode.link = episode.link ?? channel.link;
         // get image from description
-        final doc = parser.parse(episode.description ?? '');
-        // print('mediaUrl:${episode.mediaUrl}');
-        // print('imageUrl:${episode.imageUrl}');
+        final doc = parser.parse(episode.content ?? episode.description ?? '');
         episode.imageUrl =
             doc.querySelector("img")?.attributes["src"] ??
             (episode.mediaType?.contains('image') == true
@@ -131,7 +132,7 @@ class Feed {
 
   // ATOM: https://datatracker.ietf.org/doc/html/rfc4287
   factory Feed.fromAtom(XmlElement root, String url) {
-    _logger.fine('atom');
+    _log.fine('atom');
     final namespaces = root.attributes
         .where((e) => e.name.prefix == 'xmlns')
         .map((e) => e.name.local)
@@ -233,7 +234,7 @@ class Feed {
 
   // RDF (RSS 1.0): https://web.resource.org/rss/1.0/spec
   factory Feed.fromRdf(XmlElement root, String url) {
-    _logger.fine('rdf');
+    _log.fine('rdf');
     final namespaces = root.attributes
         .where((e) => e.name.prefix == 'xmlns')
         .map((e) => e.name.local)
@@ -339,10 +340,8 @@ class Feed {
   ) {
     // namespace: content (http://purl.org/rss/1.0/modules/content/)
     if (namespaces.contains('content')) {
-      // description
-      chnOrEps.description =
-          chnOrEps.description ??
-          element?.getElement('content:encoded')?.innerText;
+      // content
+      chnOrEps.content = element?.getElement('content:encoded')?.innerText;
     }
     // namespace: atom (http://www.w3.org/2005/Atom)
     if (chnOrEps is Channel && namespaces.contains('atom')) {
