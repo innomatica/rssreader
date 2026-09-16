@@ -10,25 +10,24 @@ import 'package:xml/xml.dart';
 import '../../models/channel.dart';
 import '../../models/episode.dart';
 import '../../models/feed.dart';
-// import '../../models/label.dart';
+import '../../models/pcindex.dart';
 import '../../shared/constants.dart';
-// import '../../shared/helpers.dart';
-// import '../service/api/pcindex.dart';
+import '../service/api/pcindex.dart';
 import '../service/local/sqflite.dart';
 import '../service/local/storage.dart';
 
 class FeedRepository {
   final DatabaseService _dbSrv;
-  // final PCIndexService _pcIdx;
+  final PCIndexService _pcIdx;
   final StorageService _stSrv;
 
   new({
     required DatabaseService dbSrv,
-    // required PCIndexService pcIdx,
+    required PCIndexService pcIdx,
     required StorageService stSrv,
     required AudioPlayer player,
   }) : _dbSrv = dbSrv,
-       //  _pcIdx = pcIdx,
+       _pcIdx = pcIdx,
        _stSrv = stSrv;
 
   final _logger = Logger('FeedRepository');
@@ -79,6 +78,13 @@ class FeedRepository {
       // throw Exception(e.toString);
     }
     return null;
+  }
+
+  Future<List<Channel>> searchFeed(
+    PCIndexSearch method,
+    String keywords,
+  ) async {
+    return await _pcIdx.searchPodcasts(method, keywords);
   }
 
   // save feed => save channel & its episodes

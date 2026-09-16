@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import '../shared/constants.dart' show appDocPath, chnImgFname;
-
 class Episode {
   int id;
   String guid;

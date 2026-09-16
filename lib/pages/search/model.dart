@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:rssread/data/repo/feed.dart';
+import 'package:rssread/models/pcindex.dart';
 
 import '../../models/feed.dart';
 
@@ -32,6 +33,10 @@ class SearchViewModel extends ChangeNotifier {
       return await _feedRepo.fetchFeed(url);
     }
     return null;
+  }
+
+  Future pciSearch(PCIndexSearch method, String keywords) async {
+    await _feedRepo.searchFeed(method, keywords);
   }
 
   void clearSnackMessage() {

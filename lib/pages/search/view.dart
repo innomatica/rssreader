@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:rssread/models/pcindex.dart';
 import 'package:rssread/shared/constants.dart';
 
 import '../../models/feed.dart';
@@ -144,8 +145,10 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
+    String keywords = '';
     return Scaffold(
       appBar: AppBar(
+        // back
         leading: IconButton(
           onPressed: () => context.go("/"),
           icon: Icon(Icons.arrow_back_ios_outlined),
@@ -161,7 +164,58 @@ class _SearchViewState extends State<SearchView> {
               headerBuilder: (context, isExpanded) {
                 return ListTile(title: Text('PodcastIndex Search'));
               },
-              body: Text('podcast index search panel'),
+              body: Padding(
+                padding: .only(left: 16, right: 16, bottom: 8),
+                child: Row(
+                  children: [
+                    // text field
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(label: Text('keywords')),
+                        onChanged: (value) => keywords = value,
+                      ),
+                    ),
+                    // menu button
+                    MenuAnchor(
+                      builder: (context, controller, child) {
+                        return IconButton.filledTonal(
+                          icon: Icon(Icons.search_rounded),
+                          onPressed: () {
+                            if (controller.isOpen) {
+                              controller.close();
+                            } else {
+                              controller.open();
+                            }
+                          },
+                        );
+                      },
+                      menuChildren: [
+                        MenuItemButton(
+                          onPressed: () => widget.model.pciSearch(
+                            PCIndexSearch.byTerm,
+                            keywords,
+                          ),
+                          child: Text('By Term'),
+                        ),
+                        MenuItemButton(
+                          onPressed: () => widget.model.pciSearch(
+                            PCIndexSearch.byTitle,
+                            keywords,
+                          ),
+                          child: Text('By Title'),
+                        ),
+                        MenuItemButton(
+                          onPressed: () => widget.model.pciSearch(
+                            PCIndexSearch.byCategories,
+                            keywords,
+                          ),
+                          child: Text('By Category'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             // popular rss feed directories
             ExpansionPanelRadio(
