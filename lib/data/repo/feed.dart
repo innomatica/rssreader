@@ -3,9 +3,7 @@
 import 'dart:convert' show utf8;
 
 import 'package:http/http.dart' as http;
-import 'package:just_audio/just_audio.dart' show AudioPlayer, AudioSource;
-import 'package:just_audio_background/just_audio_background.dart'
-    show MediaItem;
+import 'package:just_audio/just_audio.dart' show AudioPlayer;
 import 'package:logging/logging.dart';
 import 'package:xml/xml.dart';
 
@@ -23,7 +21,6 @@ class FeedRepository {
   final DatabaseService _dbSrv;
   // final PCIndexService _pcIdx;
   final StorageService _stSrv;
-  final AudioPlayer _player;
 
   new({
     required DatabaseService dbSrv,
@@ -32,8 +29,7 @@ class FeedRepository {
     required AudioPlayer player,
   }) : _dbSrv = dbSrv,
        //  _pcIdx = pcIdx,
-       _stSrv = stSrv,
-       _player = player;
+       _stSrv = stSrv;
 
   final _logger = Logger('FeedRepository');
 
@@ -329,37 +325,31 @@ class FeedRepository {
     return false;
   }
 
-  // // label
-  // Future<List<Label>> getLabels() async {
-  //   final rows = await _dbSrv
+  // Future<bool> _downloadResource(
+  //   int channelId,
+  //   String url,
+  //   String fname,
+  // ) async {
+  //   try {
+  //     final client = http.Client();
+  //     final req = http.Request('GET', Uri.parse(url));
+  //     final res = await client.send(req);
+
+  //     if (res.statusCode == 200) {
+  //       _logger.fine('downloading: $url to $fname');
+  //       final file = await _stSrv.getFile(channelId, fname);
+  //       if (file != null) {
+  //         await file.create(recursive: true);
+  //         final sink = file.openWrite();
+  //         await res.stream.pipe(sink);
+  //         return true;
+  //       }
+  //     }
+  //     // client.close();
+  //   } catch (e) {
+  //     // rethrow;
+  //     _logger.severe(e.toString());
+  //   }
+  //   return false;
   // }
-
-  Future<bool> _downloadResource(
-    int channelId,
-    String url,
-    String fname,
-  ) async {
-    try {
-      final client = http.Client();
-      final req = http.Request('GET', Uri.parse(url));
-      final res = await client.send(req);
-
-      if (res.statusCode == 200) {
-        _logger.fine('downloading: $url to $fname');
-        final file = await _stSrv.getFile(channelId, fname);
-        if (file != null) {
-          await file.create(recursive: true);
-          final sink = file.openWrite();
-          await res.stream.pipe(sink);
-          return true;
-        }
-      }
-      // client.close();
-    } catch (e) {
-      // rethrow;
-      _logger.severe(e.toString());
-    }
-
-    return false;
-  }
 }

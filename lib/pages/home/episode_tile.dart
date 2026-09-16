@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:provider/provider.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../data/repo/feed.dart';
 import '../../models/episode.dart';
 import '../../pages/home/model.dart';
-import '../../shared/helpers.dart' show secsToHhMmSs, sizeStr, mmddHHMM;
+import '../../shared/helpers.dart'
+    show secsToHhMmSs, sizeStr, mmddHHMM, daysAgo;
 import '../../shared/widgets.dart' show UrlImage;
 
 class EpisodeTile extends StatelessWidget {
@@ -169,7 +167,7 @@ class PodcastTile extends StatelessWidget {
       listenable: model,
       builder: (context, _) {
         return ListTile(
-          selected: model.currentPlayingId == episode.guid,
+          selected: model.currentSeqGuid == episode.guid,
           // thumbnail : channel title / episode title
           title: Row(
             spacing: 8.0,
@@ -217,19 +215,20 @@ class PodcastTile extends StatelessWidget {
           // published, duration/size
           subtitle: Row(
             children: [
-              Text(timeago.format(episode.published)),
+              // published
+              Text(daysAgo(episode.published)),
               SizedBox(width: 12.0),
               // duration or size
               episode.mediaDuration != null
                   ? Text(secsToHhMmSs(episode.mediaDuration))
                   : Text(sizeStr(episode.mediaSize)),
               Expanded(child: SizedBox()),
+              // play button
               IconButton(
                 icon: ListenableBuilder(
                   listenable: model,
                   builder: (context, _) {
-                    return model.currentPlayingId == episode.guid &&
-                            model.playing
+                    return model.currentSeqGuid == episode.guid && model.playing
                         ? Icon(Icons.pause_rounded)
                         : Icon(Icons.play_arrow_rounded);
                   },
@@ -247,6 +246,7 @@ class PodcastTile extends StatelessWidget {
   }
 }
 
+// show episode content with full screen dialog
 void handleTap(BuildContext context, Episode episode) {
   // print('episode:$episode');
   // return;
@@ -263,6 +263,7 @@ void handleTap(BuildContext context, Episode episode) {
                 scrollDirection: Axis.vertical,
                 child: Column(
                   children: [
+                    // episode title
                     Padding(
                       padding: .only(top: 60),
                       child: Text(
@@ -270,6 +271,7 @@ void handleTap(BuildContext context, Episode episode) {
                         style: TextStyle(fontSize: 20.0),
                       ),
                     ),
+                    // episode link button
                     TextButton(
                       child: Text(
                         episode.link ?? '',
@@ -289,6 +291,7 @@ void handleTap(BuildContext context, Episode episode) {
                         }
                       },
                     ),
+                    // episode content
                     HtmlWidget(
                       episode.content ?? episode.description ?? '',
                       onTapUrl: (url) async {
@@ -306,6 +309,7 @@ void handleTap(BuildContext context, Episode episode) {
                   ],
                 ),
               ),
+              // app bar like section
               Positioned(
                 top: 0,
                 left: 8,
@@ -336,7 +340,7 @@ void handleTap(BuildContext context, Episode episode) {
                         ),
                       ),
                       // Text(episode.published.toString()),
-                      Text(timeago.format(episode.published)),
+                      Text(daysAgo(episode.published)),
                       SizedBox(width: 12.0),
                     ],
                   ),

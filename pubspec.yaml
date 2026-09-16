@@ -47,7 +47,6 @@ dependencies:
   just_audio_background: ^0.0.1-beta.17
   webview_flutter: ^4.14.1
   flutter_widget_from_html: ^0.17.3
-  timeago: ^3.7.1
   url_launcher: ^6.3.2
 dev_dependencies:
   flutter_test:

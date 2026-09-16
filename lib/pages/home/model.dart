@@ -34,14 +34,17 @@ class HomeViewModel extends ChangeNotifier {
   late StreamSubscription _subSeqState;
   String _episodeType = 'any';
   String _snackMessage = "";
-  String? _currentPlayingId;
+  String? _currentSeqGuid;
   bool? _playing;
 
-  String? get currentPlayingId => _currentPlayingId;
-  Episode? get currentPlayingEpisode =>
-      _episodes.where((e) => e.guid == _currentPlayingId).firstOrNull;
+  String? get currentSeqGuid => _currentSeqGuid;
+  Episode? get currentSeqEpisode =>
+      _episodes.where((e) => e.guid == _currentSeqGuid).firstOrNull;
   bool get playing => _playing == true;
   List<IndexedAudioSource> get sequence => _sequence;
+  double get position => _player.position.inSeconds.toDouble();
+  double? get duration => _player.duration?.inSeconds.toDouble();
+  Stream<Duration> get positionStream => _player.positionStream;
 
   void _init() async {
     _subPlayerState = _player.playerStateStream.listen((event) async {
@@ -59,11 +62,9 @@ class HomeViewModel extends ChangeNotifier {
     });
     _subSeqState = _player.sequenceStateStream.listen((event) async {
       final src = event.currentSource;
-      _log.fine(event.sequence);
       _log.fine(event.currentIndex);
-      _log.fine(event.currentSource);
-      _log.fine(event.currentSource?.tag);
-      _currentPlayingId = (src?.tag as MediaItem?)?.extras?['guid'];
+      _log.fine(src?.tag);
+      _currentSeqGuid = (src?.tag as MediaItem?)?.extras?['guid'];
       notifyListeners();
       _sequence.clear();
       _sequence.addAll(event.sequence);
@@ -127,30 +128,6 @@ class HomeViewModel extends ChangeNotifier {
   void refreshEpisodes() async {
     _snackMessage = "Checking science daily";
     notifyListeners();
-
-    /*
-    var feed = await _feedRepo.fetchFeed(
-      'https://sciencedaily.com/rss/top/technology.xml',
-    );
-    if (feed != null) {
-      // _log.fine(feed);
-      // _log.fine(feed.channel);
-      // _log.fine(feed.episodes);
-      _episodes.addAll(feed.episodes);
-      notifyListeners();
-    }
-    _snackMessage = "Checking cbc";
-    feed = await _feedRepo.fetchFeed(
-      'https://www.cbc.ca/webfeed/rss/rss-canada-ottawa',
-    );
-    if (feed != null) {
-      // _log.fine(feed);
-      // _log.fine(feed.channel);
-      // _log.fine(feed.episodes);
-      _episodes.addAll(feed.episodes);
-      notifyListeners();
-    }
-    */
   }
 
   void clearSnackMessage() {
@@ -158,29 +135,46 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future playEpisode(Episode episode) async {
-    if (_player.playing) {
+    if (episode.guid == _currentSeqGuid) {
+      return playPause();
+    } else {
+      // stop current sequence
       await _player.stop();
-      return;
-    }
-    if (episode.mediaType?.contains('audio') == true &&
-        episode.mediaUrl != null) {
-      final source = AudioSource.uri(
-        Uri.parse(episode.mediaUrl!),
-        tag: MediaItem(
-          id: '1',
-          title: episode.title ?? 'title unknown',
-          artUri: Uri.tryParse(episode.channelImageUrl ?? ''),
-          extras: {"guid": episode.guid, "title": episode.title ?? "unknown"},
-        ),
-      );
-      _player.setAudioSource(source);
-      _player.play();
+      // start new sequence
+      if (episode.mediaType?.contains('audio') == true &&
+          episode.mediaUrl != null) {
+        final source = AudioSource.uri(
+          Uri.parse(episode.mediaUrl!),
+          tag: MediaItem(
+            id: '1',
+            title: episode.title ?? 'title unknown',
+            artUri: Uri.tryParse(episode.channelImageUrl ?? ''),
+            extras: {"guid": episode.guid, "title": episode.title ?? "unknown"},
+          ),
+        );
+        _player.setAudioSource(source);
+        _player.play();
+      }
     }
   }
 
   Future playPause() async {
-    _player.playing ? _player.pause() : _player.play();
+    _player.playing ? await _player.pause() : await _player.play();
   }
 
-  Future forward() async {}
+  Future forward(int seconds) async {
+    await _player.seek(_player.position + Duration(seconds: seconds));
+  }
+
+  Future seek(Duration duration) async {
+    await _player.seek(duration);
+  }
+
+  Future seekToStart() async {
+    await _player.seek(Duration(seconds: 0));
+  }
+
+  Future seekToEnd() async {
+    await _player.seek(_player.duration);
+  }
 }

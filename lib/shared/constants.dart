@@ -40,7 +40,7 @@ const defaultEpisodeImg = assetImgPodcaster;
 
 // rss finder
 const List<Map<String, String>> rssDirectories = [
-  {"title": 'Feedle: Search Feedle Catalog', "url": 'https://feedle.world'},
+  // {"title": 'Feedle: Search Feedle Catalog', "url": 'https://feedle.world'},
   {
     "title": 'FeedSpot: RSS Directory',
     "url": 'https://rss.feedspot.com/rss_directory/',
@@ -53,14 +53,14 @@ const List<Map<String, String>> rssDirectories = [
     "title": 'Lighthouse Feed Finder',
     "url": 'https://lighthouseapp.io/tools/feed-finder',
   },
-  {"title": 'Open RSS', "url": 'https://openrss.org/'},
-  {"title": "Podnews.net", "url": 'https://podnews.net/podcasts'},
+  // {"title": 'Open RSS', "url": 'https://openrss.org/'},
+  // {"title": "Podnews.net", "url": 'https://podnews.net/podcasts'},
   // {
   //   "title": 'RSS.com: Podcast RSS Feed Finder',
   //   "url": 'https://rss.com/tools/find-my-feed/',
   // },
-  {"title": 'RSS Lookup', "url": 'https://rsslookup.com/'},
-  {"title": 'WP RSS Aggregator', "url": 'https://finder.wprssaggregator.com/'},
+  // {"title": 'RSS Lookup', "url": 'https://rsslookup.com/'},
+  // {"title": 'WP RSS Aggregator', "url": 'https://finder.wprssaggregator.com/'},
 ];
 
 // search engines

@@ -144,19 +144,6 @@ class _ChannelViewState extends State<ChannelView> {
                     }
                   },
                 ),
-                // FIXME: replace with stateless widget
-                // // published
-                // TextFormField(
-                //   readOnly: true,
-                //   initialValue:
-                //       (_published)
-                //           .toString(),
-                //   maxLines: null,
-                //   decoration: InputDecoration(
-                //     label: Text('published', style: labelStyle),
-                //     border: InputBorder.none,
-                //   ),
-                // ),
                 // podcast
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,

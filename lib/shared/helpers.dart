@@ -21,6 +21,18 @@ String sizeStr(int? size) {
   return "??kb";
 }
 
+String daysAgo(DateTime? date) {
+  if (date != null) {
+    final days = DateTime.now().difference(date).inDays;
+    return days < 1
+        ? 'today'
+        : days == 1
+        ? 'yesterday'
+        : '$days days ago';
+  }
+  return 'n/a';
+}
+
 String yymmdd(DateTime? dt, {String fallback = ''}) {
   return dt?.toIso8601String().split('T').first ?? fallback;
 }
