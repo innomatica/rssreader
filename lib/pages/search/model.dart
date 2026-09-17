@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'package:rssread/data/repo/feed.dart';
 import 'package:rssread/models/pcindex.dart';
 
+import '../../models/channel.dart';
 import '../../models/feed.dart';
 
 class SearchViewModel extends ChangeNotifier {
@@ -14,13 +15,13 @@ class SearchViewModel extends ChangeNotifier {
   String _snackMessage = '';
   String get snackMessage => _snackMessage;
 
-  Future subscribe(Feed? feed) async {
-    _log.fine(feed);
-    _snackMessage = 'Invalid feed data';
-    if (feed != null) {
-      final res = await _feedRepo.subscribe(feed);
+  Future subscribe(Channel? channel) async {
+    _log.fine(channel);
+    _snackMessage = 'Invalid channel data';
+    if (channel != null) {
+      final res = await _feedRepo.subscribe(channel);
       if (res) {
-        _snackMessage = 'Subscribed to ${feed.channel.title}';
+        _snackMessage = 'Subscribed to ${channel.title}';
       } else {
         _snackMessage = 'Subscription failed';
       }
@@ -35,8 +36,8 @@ class SearchViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future pciSearch(PCIndexSearch method, String keywords) async {
-    await _feedRepo.searchFeed(method, keywords);
+  Future<List<Channel>> pciSearch(PCIndexSearch method, String keywords) async {
+    return await _feedRepo.searchPodcasts(method, keywords);
   }
 
   void clearSnackMessage() {

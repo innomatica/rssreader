@@ -4,6 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:rssread/models/pcindex.dart';
 import 'package:rssread/shared/constants.dart';
 
+import '../../models/channel.dart';
 import '../../models/feed.dart';
 import './model.dart';
 
@@ -19,14 +20,18 @@ class SearchView extends StatefulWidget {
 class _SearchViewState extends State<SearchView> {
   final _log = Logger('SearchView');
   final _formKey = GlobalKey<FormState>();
-  final _controller = TextEditingController();
+  // final _controller = TextEditingController();
+
+  String _keywords = '';
+  String _feedUrl = '';
+  final List<Channel> _channels = [];
 
   @override
   void initState() {
     super.initState();
     // show bottom modal sheet if channel data is given
     if (widget.feed != null) {
-      _showChannelModal(widget.feed!);
+      _showChannelModal(widget.feed!.channel);
     }
     // subscribe to model
     widget.model.addListener(_onViewModelChange);
@@ -35,7 +40,7 @@ class _SearchViewState extends State<SearchView> {
   @override
   void dispose() {
     widget.model.removeListener(_onViewModelChange);
-    _controller.dispose();
+    // _controller.dispose();
     super.dispose();
   }
 
@@ -45,7 +50,7 @@ class _SearchViewState extends State<SearchView> {
     // show bottom modal sheet if channel data is given
     // if (widget.feed != null && oldWidget.feed == null) {
     if (widget.feed != null && oldWidget.feed == null) {
-      _showChannelModal(widget.feed!);
+      _showChannelModal(widget.feed!.channel);
     }
   }
 
@@ -57,13 +62,13 @@ class _SearchViewState extends State<SearchView> {
     }
   }
 
-  void _showChannelModal(Feed feed) {
+  void _showChannelModal(Channel channel) {
     // Wait for the widget tree to finish building
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          _log.fine(feed);
+          _log.fine(channel);
           return StatefulBuilder(
             builder: (context, setState) {
               return Padding(
@@ -76,7 +81,7 @@ class _SearchViewState extends State<SearchView> {
                       // title
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Channel Title'),
-                        initialValue: feed.channel.title ?? '',
+                        initialValue: channel.title ?? '',
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter channel title';
@@ -84,37 +89,37 @@ class _SearchViewState extends State<SearchView> {
                           return null;
                         },
                         onChanged: (value) {
-                          setState(() => feed.channel.title = value);
+                          setState(() => channel.title = value);
                         },
                       ),
                       // author
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Author'),
-                        initialValue: feed.channel.author ?? 'unknown',
+                        initialValue: channel.author ?? 'unknown',
                         onChanged: (value) {
-                          setState(() => feed.channel.author = value);
+                          setState(() => channel.author = value);
                         },
                       ),
                       // categories
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Categories'),
-                        initialValue: feed.channel.categories ?? 'unknown',
+                        initialValue: channel.categories ?? 'unknown',
                         onChanged: (value) {
-                          setState(() => feed.channel.categories = value);
+                          setState(() => channel.categories = value);
                         },
                       ),
                       // last update
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Last update'),
-                        initialValue: feed.channel.updated.toString(),
+                        initialValue: channel.updated.toString(),
                         readOnly: true,
                       ),
                       // podcast switch
                       SwitchListTile(
                         title: const Text('Podcast'),
-                        value: feed.channel.isPodcast ?? false,
+                        value: channel.isPodcast ?? false,
                         onChanged: (bool value) {
-                          setState(() => feed.channel.isPodcast = value);
+                          setState(() => channel.isPodcast = value);
                         },
                       ),
                       // subscribe button
@@ -122,9 +127,9 @@ class _SearchViewState extends State<SearchView> {
                         mainAxisAlignment: .center,
                         children: [
                           FilledButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                widget.model.subscribe(feed);
+                                widget.model.subscribe(channel);
                                 Navigator.pop(context);
                               }
                             },
@@ -145,7 +150,6 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    String keywords = '';
     return Scaffold(
       appBar: AppBar(
         // back
@@ -166,52 +170,91 @@ class _SearchViewState extends State<SearchView> {
               },
               body: Padding(
                 padding: .only(left: 16, right: 16, bottom: 8),
-                child: Row(
+                child: Column(
+                  spacing: 8.0,
                   children: [
-                    // text field
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(label: Text('keywords')),
-                        onChanged: (value) => keywords = value,
-                      ),
-                    ),
-                    // menu button
-                    MenuAnchor(
-                      builder: (context, controller, child) {
-                        return IconButton.filledTonal(
-                          icon: Icon(Icons.search_rounded),
-                          onPressed: () {
-                            if (controller.isOpen) {
-                              controller.close();
-                            } else {
-                              controller.open();
-                            }
+                    Row(
+                      children: [
+                        // text field
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              label: Text('keywords'),
+                            ),
+                            onChanged: (value) => _keywords = value,
+                          ),
+                        ),
+                        // menu button
+                        MenuAnchor(
+                          builder: (context, controller, child) {
+                            return IconButton.filledTonal(
+                              icon: Icon(Icons.search_rounded),
+                              onPressed: () {
+                                if (controller.isOpen) {
+                                  controller.close();
+                                } else {
+                                  controller.open();
+                                }
+                              },
+                            );
                           },
-                        );
-                      },
-                      menuChildren: [
-                        MenuItemButton(
-                          onPressed: () => widget.model.pciSearch(
-                            PCIndexSearch.byTerm,
-                            keywords,
-                          ),
-                          child: Text('By Term'),
-                        ),
-                        MenuItemButton(
-                          onPressed: () => widget.model.pciSearch(
-                            PCIndexSearch.byTitle,
-                            keywords,
-                          ),
-                          child: Text('By Title'),
-                        ),
-                        MenuItemButton(
-                          onPressed: () => widget.model.pciSearch(
-                            PCIndexSearch.byCategories,
-                            keywords,
-                          ),
-                          child: Text('By Category'),
+                          menuChildren: [
+                            MenuItemButton(
+                              onPressed: () async {
+                                final channels = await widget.model.pciSearch(
+                                  PCIndexSearch.byTerm,
+                                  _keywords,
+                                );
+                                _channels.clear();
+                                _channels.addAll(channels);
+                                setState(() {});
+                              },
+                              child: Text('By Term'),
+                            ),
+                            MenuItemButton(
+                              onPressed: () async {
+                                final channels = await widget.model.pciSearch(
+                                  PCIndexSearch.byTitle,
+                                  _keywords,
+                                );
+                                _channels.clear();
+                                _channels.addAll(channels);
+                                setState(() {});
+                              },
+                              child: Text('By Title'),
+                            ),
+                            MenuItemButton(
+                              onPressed: () async {
+                                final channels = await widget.model.pciSearch(
+                                  PCIndexSearch.byCategories,
+                                  _keywords,
+                                );
+                                _channels.clear();
+                                _channels.addAll(channels);
+                                setState(() {});
+                              },
+                              child: Text('By Category'),
+                            ),
+                          ],
                         ),
                       ],
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _channels.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            title: Text(
+                              '${_channels[index].title} by ${_channels[index].author}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () => _showChannelModal(_channels[index]),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -275,29 +318,26 @@ class _SearchViewState extends State<SearchView> {
               headerBuilder: (context, isExpanded) {
                 return ListTile(title: Text('Manual Entry'));
               },
-              body: Container(
-                width: double.maxFinite,
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              body: Padding(
+                padding: .only(left: 20, right: 20),
+                child: Row(
                   children: [
-                    TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(label: Text('feed url')),
-                    ),
-                    SizedBox(height: 16.0),
-                    Center(
-                      child: FilledButton.tonal(
-                        onPressed: () async {
-                          final feed = await widget.model.fetch(
-                            _controller.text,
-                          );
-                          if (feed != null) {
-                            _showChannelModal(feed);
-                          }
-                        },
-                        child: Text('register channel'),
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(label: Text('feed URL')),
+                        onChanged: (value) => _feedUrl = value,
                       ),
+                    ),
+                    IconButton.filledTonal(
+                      icon: Icon(Icons.check_rounded),
+                      onPressed: () async {
+                        if (_feedUrl.isNotEmpty) {
+                          final feed = await widget.model.fetch(_feedUrl);
+                          if (feed?.channel != null) {
+                            _showChannelModal(feed!.channel);
+                          }
+                        }
+                      },
                     ),
                   ],
                 ),

@@ -30,7 +30,7 @@ class FeedRepository {
        _pcIdx = pcIdx,
        _stSrv = stSrv;
 
-  final _logger = Logger('FeedRepository');
+  final _log = Logger('FeedRepository');
 
   // String sanitizeXml(String input) {
   //   return input.replaceAll(
@@ -66,50 +66,39 @@ class FeedRepository {
           } else if (root.name.toString() == 'rdf:RDF') {
             return Feed.fromRdf(root, url);
           }
-          _logger.severe('unknown feed format');
+          _log.severe('unknown feed format');
           // throw Exception('unknown feed format');
         }
       } else {
         // http error or non xlm document
-        _logger.warning('${res.statusCode}: ${res.headers['content-type']}');
+        _log.warning('${res.statusCode}: ${res.headers['content-type']}');
       }
     } catch (e) {
-      _logger.severe(e.toString);
+      _log.severe(e.toString);
       // throw Exception(e.toString);
     }
     return null;
   }
 
-  Future<List<Channel>> searchFeed(
+  Future<List<Channel>> searchPodcasts(
     PCIndexSearch method,
     String keywords,
   ) async {
     return await _pcIdx.searchPodcasts(method, keywords);
   }
 
-  // save feed => save channel & its episodes
-  Future<bool> subscribe(Feed feed) async {
-    _logger.fine('subscribe');
-    if (await createChannel(feed.channel) > 0) {
-      // save episodes
-      final refDate = DateTime.now().subtract(
-        Duration(days: dataRetentionPeriod),
-      );
-      for (final episode in feed.episodes) {
-        // _log.fine('episode:$episode');
-        // save only up to maxRetentionDays ago
-        if (episode.published.isBefore(refDate) != true) {
-          episode.channelId = feed.channel.id;
-          await createEpisode(episode);
-        }
-      }
-      return true;
+  // subscription
+  Future<bool> subscribe(Channel channel) async {
+    _log.fine('subscribe');
+    final channelId = await createChannel(channel);
+    if (channelId > 0) {
+      return await refreshEpisodesByChannel(channelId);
     }
     return false;
   }
 
   Future<bool> unsubscribe(int channelId) async {
-    _logger.fine('unsubscribe');
+    _log.fine('unsubscribe');
     try {
       await _dbSrv.delete("DELETE FROM episodes WHERE channel_id = ?", [
         channelId,
@@ -119,13 +108,10 @@ class FeedRepository {
       return true;
     } on Exception catch (e) {
       // rethrow;
-      _logger.severe(e.toString());
+      _log.severe(e.toString());
     }
     return false;
   }
-
-  // update feed => update feed episodes
-  Future<void> updateFeed() async {}
 
   // channel
   Future<List<Channel>> getChannels() async {
@@ -200,7 +186,7 @@ class FeedRepository {
       return res;
     } on Exception catch (e) {
       // rethrow;
-      _logger.severe(e.toString());
+      _log.severe(e.toString());
       return 0;
     }
   }
@@ -215,7 +201,7 @@ class FeedRepository {
       return res;
     } on Exception catch (e) {
       // rethrow;
-      _logger.severe(e.toString());
+      _log.severe(e.toString());
       return 0;
     }
   }
@@ -291,7 +277,7 @@ class FeedRepository {
         [...data.values, ...data.values],
       );
     } on Exception catch (e) {
-      _logger.severe(e.toString());
+      _log.severe(e.toString());
       rethrow;
     }
   }
@@ -306,6 +292,56 @@ class FeedRepository {
     } on Exception {
       rethrow;
     }
+  }
+
+  Future<void> deleteEpisode(int episodeId) async {
+    try {
+      await _dbSrv.delete("DELETE episodes WHERE id = ?", [episodeId]);
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  Future<bool> refreshEpisodesByChannel(int channelId) async {
+    _log.fine('refreshEpisode: $channelId');
+    final channel = await getChannelById(channelId);
+    if (channel == null) {
+      _log.info('no channel found with $channelId');
+      return false;
+    }
+
+    // get existing episodes
+    final episodes = await getEpisodesByChannel(channelId);
+    final saveAfter = DateTime.now().subtract(
+      Duration(days: dataRetentionPeriod),
+    );
+    // purge expired episodes
+    for (final episode in episodes) {
+      if (episode.published.isBefore(saveAfter)) {
+        _log.fine('expired:${episode.published}');
+        await deleteEpisode(episode.id);
+      }
+    }
+    // get new episodes
+    final feed = await fetchFeed(channel.url);
+    if (feed == null) {
+      _log.warning('fetching feeds yields null');
+      return false;
+    }
+
+    for (final episode in feed.episodes) {
+      _log.fine('episode: ${episode.guid}');
+      // save only new episodes
+      if (!episodes.any((e) => e.guid == episode.guid) &&
+          episode.published.isAfter(saveAfter)) {
+        _log.fine('newly pub: ${episode.published}');
+        // this is a not null field: check db schema
+        episode.channelId = channelId;
+        await createEpisode(episode);
+      }
+    }
+
+    return true;
   }
 
   Future<bool> downloadEpisode(Episode episode) async {
