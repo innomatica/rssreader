@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:audio_session/audio_session.dart';
 import 'package:just_audio_background/just_audio_background.dart'
     show JustAudioBackground;
 import 'package:logging/logging.dart' show Logger, Level;
@@ -12,14 +13,16 @@ import 'shared/constants.dart' show appName, appDocPath;
 import 'shared/routing.dart' show router;
 
 Future<void> main() async {
+  // set logger level
   Logger.root.level = kDebugMode ? Level.FINE : Level.WARNING;
+  // logger output coloring
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print(
       '\u001b[1;33m${record.loggerName}.${record.level.name}: ${record.time}: ${record.message}\u001b[0m',
     );
   });
-  // application document directory path
+
   WidgetsFlutterBinding.ensureInitialized();
   // initialize just audio background
   await JustAudioBackground.init(
@@ -27,6 +30,11 @@ Future<void> main() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
+  // configure audio session
+  final session = await AudioSession.instance;
+  await session.configure(const AudioSessionConfiguration.music());
+
+  // application document directory path
   appDocPath = (await getApplicationDocumentsDirectory()).path;
 
   runApp(MultiProvider(providers: providers, child: const MyApp()));

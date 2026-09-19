@@ -119,13 +119,17 @@ class _HomeViewState extends State<HomeView> {
           ListenableBuilder(
             listenable: widget.model,
             builder: (context, _) {
-              return Wrap(
-                spacing: 16.0,
-                runSpacing: 16.0,
-                alignment: WrapAlignment.center,
-                children: widget.model.channels
-                    .map((e) => ChannelTile(channel: e))
-                    .toList(),
+              return Center(
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 16.0,
+                    runSpacing: 16.0,
+                    // alignment: WrapAlignment.center,
+                    children: widget.model.channels
+                        .map((e) => ChannelTile(channel: e))
+                        .toList(),
+                  ),
+                ),
               );
             },
           ),
