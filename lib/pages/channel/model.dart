@@ -13,6 +13,7 @@ class ChannelViewModel extends ChangeNotifier {
   final _log = Logger('ChannelViewModel');
   Channel? _channel;
   String _snackMessage = '';
+  bool _isLoading = true;
 
   String get snackMessage => _snackMessage;
   Channel? get channel => _channel;
@@ -21,10 +22,12 @@ class ChannelViewModel extends ChangeNotifier {
   String? get author => _channel?.author;
   String? get imageUrl => _channel?.imageUrl;
   String? get categories => _channel?.categories;
+  bool get isLoading => _isLoading;
 
   Future load(int? channelId) async {
     if (channelId != null) {
       _channel = await _feedRepo.getChannelById(channelId);
+      _isLoading = false;
       _log.fine('load:$_channel');
       notifyListeners();
     }
