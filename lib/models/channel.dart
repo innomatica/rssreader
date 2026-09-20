@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'dart:io' show File;
 
-import 'package:rssread/shared/helpers.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart'
+    show ImageProvider, AssetImage, FileImage, NetworkImage;
+import 'package:logging/logging.dart';
 
 import '../shared/constants.dart'
-    show appDocPath, chnImgFname, defaultUpdatePeriod;
+    show appDocPath, chnImgFname, defaultUpdatePeriod, defaultChannelImg;
+import '../shared/helpers.dart';
 
 class Channel {
   int id;
@@ -49,7 +54,46 @@ class Channel {
     this.labels,
   });
 
+  final _log = Logger('Channel');
+
   String get imagePath => "$appDocPath/$id/$chnImgFname";
+
+  ImageProvider get image {
+    if (imageUrl == null) {
+      // _log.fine('assetimage for $title');
+      return AssetImage(defaultChannelImg);
+    }
+
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      // _log.fine('file image for $title');
+      return FileImage(file);
+    } else {
+      _downloadImage();
+      // _log.fine('network image for $title');
+      return NetworkImage(imageUrl!);
+    }
+  }
+
+  Future<void> _downloadImage() async {
+    if (imageUrl != null) {
+      try {
+        final client = http.Client();
+        final req = http.Request('GET', Uri.parse(imageUrl!));
+        final res = await client.send(req);
+        if (res.statusCode == 200) {
+          _log.fine('downloading: $imageUrl to $imagePath');
+          final file = File(imagePath);
+          await file.create(recursive: true);
+          final sink = file.openWrite();
+          await res.stream.pipe(sink);
+        }
+        client.close();
+      } catch (e) {
+        _log.warning(e.toString());
+      }
+    }
+  }
 
   factory Channel.fromPCIndex(Map<String, dynamic> data) {
     final lastUpdateSec =
