@@ -47,6 +47,7 @@ class HomeViewModel extends ChangeNotifier {
   Stream<Duration> get positionStream => _player.positionStream;
 
   void _init() async {
+    _log.fine('init');
     _subPlayerState = _player.playerStateStream.listen((event) async {
       _log.fine(event.playing);
       _log.fine(event.processingState);
@@ -104,9 +105,9 @@ class HomeViewModel extends ChangeNotifier {
   String get episodeType => _episodeType;
 
   Future<void> load() async {
+    _log.fine('load');
     _channels.clear();
     _channels.addAll(await _feedRepo.getChannels());
-    // _log.fine(_channels);
     notifyListeners();
 
     _episodes.clear();

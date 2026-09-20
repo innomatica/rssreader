@@ -24,7 +24,7 @@ class ChannelViewModel extends ChangeNotifier {
   String? get categories => _channel?.categories;
   bool get isLoading => _isLoading;
 
-  Future load(int? channelId) async {
+  Future<bool> load(int? channelId) async {
     // this is required to prevent previous data from showing at view
     _isLoading = true;
 
@@ -33,7 +33,9 @@ class ChannelViewModel extends ChangeNotifier {
       _isLoading = false;
       _log.fine('load:$_channel');
       notifyListeners();
+      return true;
     }
+    return false;
   }
 
   Future unsubscribe() async {

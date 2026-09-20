@@ -6,7 +6,8 @@ import './model.dart';
 
 class ChannelView extends StatefulWidget {
   final ChannelViewModel model;
-  const new({super.key, required this.model});
+  final int? channelId;
+  const new({super.key, required this.model, required this.channelId});
 
   @override
   State<ChannelView> createState() => _ChannelViewState();
@@ -60,54 +61,41 @@ class _ChannelViewState extends State<ChannelView> {
   @override
   Widget build(BuildContext context) {
     final labelStyle = TextStyle(color: Theme.of(context).colorScheme.primary);
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () async {
-            // await widget.model.update(_channel);
-            if (context.mounted) context.go("/");
-          },
-        ),
-        title: ListenableBuilder(
-          listenable: widget.model,
-          builder: (context, _) {
-            return Text(widget.model.channel?.title ?? '');
-          },
-        ),
-      ),
-      body: ListenableBuilder(
-        listenable: widget.model,
-        builder: (context, _) {
-          return widget.model.isLoading
-              ? Center(
-                  child: SizedBox(
-                    width: 20.0,
-                    height: 20.0,
-                    child: CircularProgressIndicator(),
+    return FutureBuilder(
+      future: widget.model.load(widget.channelId),
+      builder: (context, snapshot) {
+        return snapshot.hasData
+            ? Scaffold(
+                appBar: AppBar(
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () async {
+                      // await widget.model.update(_channel);
+                      if (context.mounted) context.go("/");
+                    },
                   ),
-                )
-              : SingleChildScrollView(
+                  title: ListenableBuilder(
+                    listenable: widget.model,
+                    builder: (context, _) {
+                      return Text(widget.model.channel?.title ?? '');
+                    },
+                  ),
+                ),
+                body: SingleChildScrollView(
                   padding: EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // channel image
-                      MediaImage(
-                        widget.model.channel?.image,
-                        height: 100.0,
-                        width: double.maxFinite,
+                      ListenableBuilder(
+                        listenable: widget.model,
+                        builder: (context, _) {
+                          return MediaImage(
+                            widget.model.channel?.image,
+                            height: 100.0,
+                            width: double.maxFinite,
+                          );
+                        },
                       ),
-                      // ListenableBuilder(
-                      //   listenable: widget.model,
-                      //   builder: (context, _) {
-                      //     return MediaImage(
-                      //       widget.model.channel?.image,
-                      //       height: 100.0,
-                      //       width: double.maxFinite,
-                      //     );
-                      //   },
-                      // ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -168,23 +156,19 @@ class _ChannelViewState extends State<ChannelView> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('podcast channel', style: labelStyle),
-                              Switch(
-                                value: widget.model.isPodcast,
-                                onChanged: (value) {
-                                  widget.model.update({'is_podcast': value});
+                              ListenableBuilder(
+                                listenable: widget.model,
+                                builder: (context, _) {
+                                  return Switch(
+                                    value: widget.model.isPodcast,
+                                    onChanged: (value) {
+                                      widget.model.update({
+                                        'is_podcast': value,
+                                      });
+                                    },
+                                  );
                                 },
                               ),
-                              // ListenableBuilder(
-                              //   listenable: widget.model,
-                              //   builder: (context, _) {
-                              //     return Switch(
-                              //       value: widget.model.isPodcast,
-                              //       onChanged: (value) {
-                              //         widget.model.update({'is_podcast': value});
-                              //       },
-                              //     );
-                              //   },
-                              // ),
                             ],
                           ),
                           // has content
@@ -193,23 +177,19 @@ class _ChannelViewState extends State<ChannelView> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('episode has content', style: labelStyle),
-                              Switch(
-                                value: widget.model.hasContent,
-                                onChanged: (value) {
-                                  widget.model.update({'has_content': value});
+                              ListenableBuilder(
+                                listenable: widget.model,
+                                builder: (context, _) {
+                                  return Switch(
+                                    value: widget.model.hasContent,
+                                    onChanged: (value) {
+                                      widget.model.update({
+                                        'has_content': value,
+                                      });
+                                    },
+                                  );
                                 },
                               ),
-                              // ListenableBuilder(
-                              //   listenable: widget.model,
-                              //   builder: (context, _) {
-                              //     return Switch(
-                              //       value: widget.model.hasContent,
-                              //       onChanged: (value) {
-                              //         widget.model.update({'has_content': value});
-                              //       },
-                              //     );
-                              //   },
-                              // ),
                             ],
                           ),
                           // space
@@ -233,9 +213,16 @@ class _ChannelViewState extends State<ChannelView> {
                       ),
                     ],
                   ),
-                );
-        },
-      ),
+                ),
+              )
+            : Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(),
+                ),
+              );
+      },
     );
   }
 }

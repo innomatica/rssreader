@@ -49,8 +49,8 @@ final router = GoRouter(
               state.pathParameters['channelId'] ?? '',
             );
             return ChannelView(
-              model: context.read<ChannelViewModel>()..load(channelId),
-              // channel: state.extra as Channel?,
+              model: context.read<ChannelViewModel>(),
+              channelId: channelId,
             );
           },
         ),

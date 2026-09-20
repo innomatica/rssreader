@@ -37,7 +37,7 @@ class MediaImage extends StatelessWidget {
       child: image != null
           ? FadeInImage(
               placeholder: MemoryImage(placeholderImage),
-              fadeInDuration: Duration(milliseconds: 100),
+              fadeInDuration: Duration(milliseconds: 200),
               fadeOutDuration: Duration(milliseconds: 50),
               image: image!,
               width: width,
