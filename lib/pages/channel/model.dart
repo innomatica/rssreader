@@ -25,6 +25,9 @@ class ChannelViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future load(int? channelId) async {
+    // this is required to prevent previous data from showing at view
+    _isLoading = true;
+
     if (channelId != null) {
       _channel = await _feedRepo.getChannelById(channelId);
       _isLoading = false;
