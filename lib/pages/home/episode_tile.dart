@@ -6,7 +6,7 @@ import '../../models/episode.dart';
 import '../../pages/home/model.dart';
 import '../../shared/helpers.dart'
     show secsToHhMmSs, sizeStr, mmddHHMM, daysAgo;
-import '../../shared/widgets.dart' show UrlImage;
+import '../../shared/widgets.dart' show MediaImage;
 
 class EpisodeTile extends StatelessWidget {
   final Episode episode;
@@ -50,8 +50,8 @@ class NewsTile extends StatelessWidget {
                       child: Row(
                         spacing: 8.0,
                         children: [
-                          UrlImage(
-                            episode.channelImageUrl,
+                          MediaImage(
+                            episode.channelImage,
                             width: 16,
                             height: 16,
                             borderRadius: 2.0,
@@ -71,8 +71,8 @@ class NewsTile extends StatelessWidget {
                 ),
                 // image
                 episode.imageUrl != null
-                    ? UrlImage(
-                        episode.imageUrl!,
+                    ? MediaImage(
+                        episode.image,
                         width: double.maxFinite,
                         height: 180,
                       )
@@ -112,8 +112,8 @@ class NewsTile extends StatelessWidget {
                           Row(
                             spacing: 8.0,
                             children: [
-                              UrlImage(
-                                episode.channelImageUrl,
+                              MediaImage(
+                                episode.channelImage,
                                 width: 16,
                                 height: 16,
                                 borderRadius: 2.0,
@@ -175,9 +175,8 @@ class PodcastTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadiusGeometry.circular(5.0),
-                // child: ChannelImage(episode, width: 60, height: 60),
-                child: UrlImage(
-                  episode.channelImageUrl,
+                child: MediaImage(
+                  episode.channelImage,
                   width: 60.0,
                   height: 60.0,
                   borderRadius: 2.0,

@@ -1,6 +1,3 @@
-import 'dart:convert' show base64Decode;
-import 'dart:typed_data' show Uint8List;
-
 const appName = "RSS Reader";
 const appVersion = '0.0.1+1';
 const appId = 'ca.innomatic.rssread';
@@ -16,11 +13,6 @@ const assetImgMicrophone = 'assets/images/microphone.png';
 const assetImgNewspaper = 'assets/images/newspaper.png';
 const assetImgPodcaster = 'assets/images/podcaster.png';
 const assetImgRssIcon = 'assets/images/rssicon.png';
-
-// placeholder
-final Uint8List placeholderImage = base64Decode(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOcUA8AAaUBEbsdPJQAAAAASUVORK5CYII=',
-);
 
 // retention days
 final dataRetentionPeriod = 30;
