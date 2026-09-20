@@ -7,7 +7,10 @@ import './constants.dart' show defaultChannelImg;
 
 // placeholder
 final Uint8List placeholderImage = base64Decode(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOcUA8AAaUBEbsdPJQAAAAASUVORK5CYII=',
+  // 30
+  // 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOUqwcAAMEAnwarUJAAAAAASUVORK5CYII=',
+  // 50
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mM0qgcAAOkAsw4XxxMAAAAASUVORK5CYII=',
 );
 
 class MediaImage extends StatelessWidget {
@@ -34,6 +37,8 @@ class MediaImage extends StatelessWidget {
       child: image != null
           ? FadeInImage(
               placeholder: MemoryImage(placeholderImage),
+              fadeInDuration: Duration(milliseconds: 100),
+              fadeOutDuration: Duration(milliseconds: 50),
               image: image!,
               width: width,
               height: height,
