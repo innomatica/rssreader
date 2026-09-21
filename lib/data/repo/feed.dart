@@ -215,7 +215,7 @@ class FeedRepository {
         "  channels.image_url as channel_image_url, "
         "  channels.url as channel_url, "
         "  channels.is_podcast as is_podcast, "
-        "  channels.has_content as has-content "
+        "  channels.has_content as has_content "
         "FROM episodes "
         "INNER JOIN channels ON channels.id=episodes.channel_id "
         "ORDER BY episodes.published DESC",
@@ -253,7 +253,7 @@ class FeedRepository {
         "  channels.image_url as channel_image_url, "
         "  channels.url as channel_url, "
         "  channels.is_podcast as is_podcast, "
-        "  channels.has_content as has-content "
+        "  channels.has_content as has_content "
         "FROM episodes "
         "INNER JOIN channels ON channels.id=episodes.channel_id "
         "WHERE episodes.guid = ?",
@@ -296,13 +296,14 @@ class FeedRepository {
 
   Future<void> deleteEpisode(int episodeId) async {
     try {
-      await _dbSrv.delete("DELETE episodes WHERE id = ?", [episodeId]);
+      await _dbSrv.delete("DELETE FROM episodes WHERE id = ?", [episodeId]);
     } on Exception {
       rethrow;
     }
   }
 
   Future<bool> refreshEpisodesByChannel(int channelId) async {
+    bool flag = false;
     _log.fine('refreshEpisode: $channelId');
     final channel = await getChannelById(channelId);
     if (channel == null) {
@@ -330,7 +331,7 @@ class FeedRepository {
     }
 
     for (final episode in feed.episodes) {
-      _log.fine('episode: ${episode.guid}');
+      // _log.fine('episode: ${episode.guid}');
       // save only new episodes
       if (!episodes.any((e) => e.guid == episode.guid) &&
           episode.published.isAfter(saveAfter)) {
@@ -338,10 +339,10 @@ class FeedRepository {
         // this is a not null field: check db schema
         episode.channelId = channelId;
         await createEpisode(episode);
+        flag = true;
       }
     }
-
-    return true;
+    return flag;
   }
 
   Future<bool> downloadEpisode(Episode episode) async {
