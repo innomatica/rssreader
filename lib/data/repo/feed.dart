@@ -1,9 +1,9 @@
 // ignore_for_file: prefer_initializing_formals
 
 import 'dart:convert' show utf8;
+import 'dart:io' show File, Directory;
 
 import 'package:http/http.dart' as http;
-import 'package:just_audio/just_audio.dart' show AudioPlayer;
 import 'package:logging/logging.dart';
 import 'package:xml/xml.dart';
 
@@ -14,21 +14,14 @@ import '../../models/pcindex.dart';
 import '../../shared/constants.dart';
 import '../service/api/pcindex.dart';
 import '../service/local/sqflite.dart';
-import '../service/local/storage.dart';
 
 class FeedRepository {
   final DatabaseService _dbSrv;
   final PCIndexService _pcIdx;
-  final StorageService _stSrv;
 
-  new({
-    required DatabaseService dbSrv,
-    required PCIndexService pcIdx,
-    required StorageService stSrv,
-    required AudioPlayer player,
-  }) : _dbSrv = dbSrv,
-       _pcIdx = pcIdx,
-       _stSrv = stSrv;
+  new({required DatabaseService dbSrv, required PCIndexService pcIdx})
+    : _dbSrv = dbSrv,
+      _pcIdx = pcIdx;
 
   final _log = Logger('FeedRepository');
 
@@ -97,14 +90,20 @@ class FeedRepository {
     return false;
   }
 
-  Future<bool> unsubscribe(int channelId) async {
+  Future<bool> unsubscribe(Channel channel) async {
     _log.fine('unsubscribe');
     try {
+      // delete channel directory
+      final dir = Directory(channel.dataPath);
+      await dir.delete(recursive: true);
+
+      // delete episodes
       await _dbSrv.delete("DELETE FROM episodes WHERE channel_id = ?", [
-        channelId,
+        channel.id,
       ]);
-      await _dbSrv.delete("DELETE FROM channels WHERE id = ?", [channelId]);
-      await _stSrv.deleteDirectory(channelId);
+      // delete channel
+      await _dbSrv.delete("DELETE FROM channels WHERE id = ?", [channel.id]);
+
       return true;
     } on Exception catch (e) {
       // rethrow;
@@ -154,35 +153,6 @@ class FeedRepository {
         " ON CONFLICT(id) DO NOTHING",
         [...data.values],
       );
-      // create thumbnail when channel is created successfully
-      if (res > 0) {
-        /*
-        // download channel image
-        if (channel.imageUrl == null ||
-            await _downloadResource(
-                  channel.id,
-                  channel.imageUrl!,
-                  chnImgFname,
-                ) ==
-                false) {
-          // failed to download channel thumbnail, use stock image instead
-          final byteData = await rootBundle.load(
-            channel.isPodcast == true
-                ? defaultCastChannelImg
-                : defaultNewsChannelImg,
-          );
-          // save the stock image for the channel thumbnail
-          final file = await _stSrv.getFile(channel.id, chnImgFname);
-          await file?.create(recursive: true);
-          await file?.writeAsBytes(
-            byteData.buffer.asUint8List(
-              byteData.offsetInBytes,
-              byteData.lengthInBytes,
-            ),
-          );
-        }
-        */
-      }
       return res;
     } on Exception catch (e) {
       // rethrow;
@@ -294,9 +264,24 @@ class FeedRepository {
     }
   }
 
-  Future<void> deleteEpisode(int episodeId) async {
+  Future<void> deleteEpisode(Episode episode) async {
     try {
-      await _dbSrv.delete("DELETE FROM episodes WHERE id = ?", [episodeId]);
+      // delete local image
+      if (episode.imagePath != null) {
+        final file = File(episode.imagePath!);
+        if (file.existsSync()) {
+          await file.delete();
+        }
+      }
+      // delete local media
+      if (episode.isPodcast == true) {
+        final file = File(episode.mediaPath);
+        if (file.existsSync()) {
+          await file.delete();
+        }
+      }
+      // update database
+      await _dbSrv.delete("DELETE FROM episodes WHERE id = ?", [episode.id]);
     } on Exception {
       rethrow;
     }
@@ -320,7 +305,7 @@ class FeedRepository {
     for (final episode in episodes) {
       if (episode.published.isBefore(saveAfter)) {
         _log.fine('expired:${episode.published}');
-        await deleteEpisode(episode.id);
+        await deleteEpisode(episode);
       }
     }
     // get new episodes
@@ -345,18 +330,10 @@ class FeedRepository {
     return flag;
   }
 
-  Future<bool> downloadEpisode(Episode episode) async {
-    if (episode.channelId != null) {
-      await updateEpisode(episode.id, {"downloaded": 1});
-      return true;
-    }
-    /*
-    if (episode.channelId != null && episode.mediaUrl != null) {
-      if (await _downloadResource(
-        episode.channelId!,
-        episode.mediaUrl!,
-        episode.mediaFname,
-      )) {
+  Future<bool> downloadEpisodeMedia(Episode episode) async {
+    // download media to local storage
+    if (episode.mediaUrl != null) {
+      if (await _downloadResource(episode.mediaUrl!, episode.mediaPath)) {
         // download successful
         episode.downloaded = true;
         // note downloaded field type is integer
@@ -364,35 +341,29 @@ class FeedRepository {
         return true;
       }
     }
-    */
+
     return false;
   }
 
-  // Future<bool> _downloadResource(
-  //   int channelId,
-  //   String url,
-  //   String fname,
-  // ) async {
-  //   try {
-  //     final client = http.Client();
-  //     final req = http.Request('GET', Uri.parse(url));
-  //     final res = await client.send(req);
-
-  //     if (res.statusCode == 200) {
-  //       _logger.fine('downloading: $url to $fname');
-  //       final file = await _stSrv.getFile(channelId, fname);
-  //       if (file != null) {
-  //         await file.create(recursive: true);
-  //         final sink = file.openWrite();
-  //         await res.stream.pipe(sink);
-  //         return true;
-  //       }
-  //     }
-  //     // client.close();
-  //   } catch (e) {
-  //     // rethrow;
-  //     _logger.severe(e.toString());
-  //   }
-  //   return false;
-  // }
+  Future<bool> _downloadResource(String url, String fpath) async {
+    bool flag = false;
+    try {
+      final client = http.Client();
+      final req = http.Request('GET', Uri.parse(url));
+      final res = await client.send(req);
+      if (res.statusCode == 200) {
+        _log.fine('downloading: $url to $fpath');
+        final file = File(fpath);
+        await file.create(recursive: true);
+        final sink = file.openWrite();
+        await res.stream.pipe(sink);
+        flag = true;
+      }
+      client.close();
+    } catch (e) {
+      // rethrow;
+      _log.severe(e.toString());
+    }
+    return flag;
+  }
 }

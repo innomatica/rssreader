@@ -56,6 +56,9 @@ class Channel {
 
   final _log = Logger('Channel');
 
+  // channel data path
+  String get dataPath => "$appDocPath/$id";
+  // channel thumbnail image path
   String get imagePath => "$appDocPath/$id/$chnImgFname";
 
   ImageProvider get image {

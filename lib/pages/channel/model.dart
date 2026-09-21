@@ -40,7 +40,7 @@ class ChannelViewModel extends ChangeNotifier {
 
   Future unsubscribe() async {
     if (_channel != null) {
-      bool flag = await _feedRepo.unsubscribe(_channel!.id);
+      bool flag = await _feedRepo.unsubscribe(_channel!);
       _snackMessage = flag == true
           ? 'Channel data deleted'
           : 'Failed to delete the channel data';

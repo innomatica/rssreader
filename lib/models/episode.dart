@@ -81,13 +81,16 @@ class Episode {
 
   final _log = Logger('Channel');
 
-  String get imagePath => "$appDocPath/$channelId/$id";
+  // episode thumbnail image path
+  String? get imagePath =>
+      channelId == null ? null : "$appDocPath/$channelId/$id";
+  // channel thumbnail image path
   String get channelImagePath => "$appDocPath/$channelId/$chnImgFname";
-
-  // episode guid could be anything including a url
-  String get mediaFname => guid.replaceAll('/', '\\');
-  String? get imageFname =>
-      imageUrl != null ? Uri.tryParse(imageUrl!)?.path.split('/').last : null;
+  // episode media path
+  String get mediaPath =>
+      "$appDocPath/$channelId/${guid.replaceAll('/', '\\')}";
+  // String? get imageFname =>
+  //     imageUrl != null ? Uri.tryParse(imageUrl!)?.path.split('/').last : null;
 
   factory Episode.fromSqlite(Map<String, Object?> row) {
     return Episode(
@@ -133,12 +136,12 @@ class Episode {
   }
 
   ImageProvider get image {
-    if (imageUrl == null) {
+    if (imageUrl == null || imagePath == null) {
       // _log.fine('assetimage for $title');
       return AssetImage(defaultEpisodeImg);
     }
 
-    final file = File(imagePath);
+    final file = File(imagePath!);
     if (file.existsSync()) {
       // _log.fine('file image for $title');
       return FileImage(file);
@@ -166,21 +169,21 @@ class Episode {
   }
 
   Future<void> _downloadImage() async {
-    if (imageUrl != null) {
+    if (imageUrl != null && imagePath != null) {
       try {
         final client = http.Client();
         final req = http.Request('GET', Uri.parse(imageUrl!));
         final res = await client.send(req);
         if (res.statusCode == 200) {
           _log.fine('downloading: $imageUrl to $imagePath');
-          final file = File(imagePath);
+          final file = File(imagePath!);
           await file.create(recursive: true);
           final sink = file.openWrite();
           await res.stream.pipe(sink);
         }
         client.close();
       } catch (e) {
-        _log.warning(e.toString());
+        _log.severe(e.toString());
       }
     }
   }
