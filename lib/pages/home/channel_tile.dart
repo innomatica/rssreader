@@ -14,11 +14,11 @@ class ChannelTile extends StatelessWidget {
       onTap: () => context.go('/channel/${channel.id}'),
       // onTap: () => print('channel:$channel'),
       child: SizedBox(
-        width: 110.0,
+        width: 100.0,
         height: 130.0,
         child: Column(
           children: [
-            ThumbnailImage(channel.image, width: 110.0, height: 110.0),
+            ThumbnailImage(channel.image, width: 100.0, height: 100.0),
             Text(
               channel.title ?? '',
               maxLines: 1,
