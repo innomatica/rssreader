@@ -100,7 +100,7 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const .symmetric(vertical: 8.0),
         child: <Widget>[
           // episodes
           ListenableBuilder(
