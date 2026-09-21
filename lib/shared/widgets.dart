@@ -13,14 +13,15 @@ final Uint8List placeholderImage = base64Decode(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mM0qgcAAOkAsw4XxxMAAAAASUVORK5CYII=',
 );
 
-class MediaImage extends StatelessWidget {
+class ThumbnailImage extends StatelessWidget {
   final ImageProvider? image;
   final double? width;
   final double? height;
   final double opacity;
   final BoxFit fit;
   final double borderRadius;
-  const MediaImage(
+
+  const ThumbnailImage(
     this.image, {
     super.key,
     this.width,

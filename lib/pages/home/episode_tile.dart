@@ -6,7 +6,7 @@ import '../../models/episode.dart';
 import '../../pages/home/model.dart';
 import '../../shared/helpers.dart'
     show secsToHhMmSs, sizeStr, mmddHHMM, daysAgo;
-import '../../shared/widgets.dart' show MediaImage;
+import '../../shared/widgets.dart' show ThumbnailImage;
 
 class EpisodeTile extends StatelessWidget {
   final Episode episode;
@@ -50,7 +50,7 @@ class NewsTile extends StatelessWidget {
                       child: Row(
                         spacing: 8.0,
                         children: [
-                          MediaImage(
+                          ThumbnailImage(
                             episode.channelImage,
                             width: 16,
                             height: 16,
@@ -71,7 +71,7 @@ class NewsTile extends StatelessWidget {
                 ),
                 // image
                 episode.imageUrl != null
-                    ? MediaImage(
+                    ? ThumbnailImage(
                         episode.image,
                         width: double.maxFinite,
                         height: 180,
@@ -112,7 +112,7 @@ class NewsTile extends StatelessWidget {
                           Row(
                             spacing: 8.0,
                             children: [
-                              MediaImage(
+                              ThumbnailImage(
                                 episode.channelImage,
                                 width: 16,
                                 height: 16,
@@ -175,7 +175,7 @@ class PodcastTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadiusGeometry.circular(5.0),
-                child: MediaImage(
+                child: ThumbnailImage(
                   episode.channelImage,
                   width: 60.0,
                   height: 60.0,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rssread/shared/widgets.dart' show MediaImage;
+import 'package:rssread/shared/widgets.dart' show ThumbnailImage;
 
 import '../../models/channel.dart';
 
@@ -18,7 +18,7 @@ class ChannelTile extends StatelessWidget {
         height: 130.0,
         child: Column(
           children: [
-            MediaImage(channel.image, width: 110.0, height: 110.0),
+            ThumbnailImage(channel.image, width: 110.0, height: 110.0),
             Text(
               channel.title ?? '',
               maxLines: 1,

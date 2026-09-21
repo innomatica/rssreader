@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../shared/widgets.dart' show MediaImage;
+import '../../shared/widgets.dart' show ThumbnailImage;
 import './model.dart';
 
 class ChannelView extends StatefulWidget {
@@ -80,6 +80,20 @@ class _ChannelViewState extends State<ChannelView> {
                       return Text(widget.model.channel?.title ?? '');
                     },
                   ),
+                  actions: [
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        padding: .symmetric(horizontal: 16.0),
+                        minimumSize: Size(50, 30),
+                        backgroundColor: Theme.of(context).colorScheme.tertiary,
+                        foregroundColor: Theme.of(context)
+                            .colorScheme
+                            .onTertiary,
+                      ),
+                      onPressed: () => widget.model.unsubscribe(),
+                      child: Text('cancel'),
+                    ),
+                  ],
                 ),
                 body: SingleChildScrollView(
                   padding: EdgeInsets.all(16.0),
@@ -89,7 +103,7 @@ class _ChannelViewState extends State<ChannelView> {
                       ListenableBuilder(
                         listenable: widget.model,
                         builder: (context, _) {
-                          return MediaImage(
+                          return ThumbnailImage(
                             widget.model.channel?.image,
                             height: 100.0,
                             width: double.maxFinite,
@@ -192,23 +206,23 @@ class _ChannelViewState extends State<ChannelView> {
                               ),
                             ],
                           ),
-                          // space
-                          SizedBox(height: 32.0),
-                          // cancel the channel
-                          Center(
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                                foregroundColor: Theme.of(context)
-                                    .colorScheme
-                                    .error,
-                              ),
-                              onPressed: () => widget.model.unsubscribe(),
-                              child: Text('Cancel this channel'),
-                            ),
-                          ),
+                          // // space
+                          // SizedBox(height: 32.0),
+                          // // cancel the channel
+                          // Center(
+                          //   child: OutlinedButton(
+                          //     style: OutlinedButton.styleFrom(
+                          //       side: BorderSide(
+                          //         color: Theme.of(context).colorScheme.error,
+                          //       ),
+                          //       foregroundColor: Theme.of(context)
+                          //           .colorScheme
+                          //           .error,
+                          //     ),
+                          //     onPressed: () => widget.model.unsubscribe(),
+                          //     child: Text('Cancel this channel'),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],

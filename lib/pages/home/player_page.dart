@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rssread/shared/helpers.dart';
 
-import '../../shared/widgets.dart' show MediaImage;
+import '../../shared/widgets.dart' show ThumbnailImage;
 import './model.dart';
 
 class PlayerPage extends StatelessWidget {
@@ -24,7 +24,7 @@ class PlayerPage extends StatelessWidget {
           screenSize.height > 700
               ? Padding(
                   padding: const .only(bottom: 32.0),
-                  child: MediaImage(
+                  child: ThumbnailImage(
                     model.currentSeqEpisode?.channelImage,
                     width: 200,
                     height: 200,
