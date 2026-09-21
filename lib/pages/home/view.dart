@@ -88,7 +88,7 @@ class _HomeViewState extends State<HomeView> {
           ),
           IconButton(
             icon: Icon(Icons.refresh_rounded),
-            onPressed: () => widget.model.refreshEpisodes(),
+            onPressed: () => widget.model.refresh(),
           ),
         ],
       ),

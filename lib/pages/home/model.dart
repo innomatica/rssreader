@@ -47,7 +47,7 @@ class HomeViewModel extends ChangeNotifier {
   Stream<Duration> get positionStream => _player.positionStream;
 
   void _init() async {
-    _log.fine('init');
+    // _log.fine('init');
     _subPlayerState = _player.playerStateStream.listen((event) async {
       _log.fine(event.playing);
       _log.fine(event.processingState);
@@ -105,15 +105,23 @@ class HomeViewModel extends ChangeNotifier {
   String get episodeType => _episodeType;
 
   Future<void> load() async {
-    _log.fine('load');
+    // _log.fine('load');
     _channels.clear();
     _channels.addAll(await _feedRepo.getChannels());
-    notifyListeners();
 
     _episodes.clear();
     for (final channel in _channels) {
       _episodes.addAll(await _feedRepo.getEpisodesByChannel(channel.id));
       notifyListeners();
+    }
+  }
+
+  Future<void> refresh() async {
+    for (final channel in _channels) {
+      if (await _feedRepo.refreshEpisodesByChannel(channel.id)) {
+        _log.fine('new episodes found for ${channel.title}');
+        notifyListeners();
+      }
     }
   }
 
@@ -123,11 +131,6 @@ class HomeViewModel extends ChangeNotifier {
     } else {
       _episodeType = newType;
     }
-    notifyListeners();
-  }
-
-  void refreshEpisodes() async {
-    _snackMessage = "Checking science daily";
     notifyListeners();
   }
 
