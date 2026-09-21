@@ -156,9 +156,11 @@ class HomeViewModel extends ChangeNotifier {
       if (episode.mediaType?.contains('audio') == true &&
           episode.mediaUrl != null) {
         final source = AudioSource.uri(
-          Uri.parse(episode.mediaUrl!),
+          episode.downloaded == true
+              ? Uri.parse(episode.mediaPath)
+              : Uri.parse(episode.mediaUrl!),
           tag: MediaItem(
-            id: '1',
+            id: episode.guid,
             title: episode.title ?? 'title unknown',
             artUri: Uri.tryParse(episode.channelImageUrl ?? ''),
             extras: {"guid": episode.guid, "title": episode.title ?? "unknown"},
@@ -167,6 +169,13 @@ class HomeViewModel extends ChangeNotifier {
         _player.setAudioSource(source);
         _player.play();
       }
+    }
+  }
+
+  Future downloadEpisode(Episode episode) async {
+    final res = await _feedRepo.downloadEpisodeMedia(episode);
+    if (res) {
+      notifyListeners();
     }
   }
 

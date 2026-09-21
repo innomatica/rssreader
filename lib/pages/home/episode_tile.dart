@@ -221,15 +221,30 @@ class PodcastTile extends StatelessWidget {
               episode.mediaDuration != null
                   ? Text(secsToHhMmSs(episode.mediaDuration))
                   : Text(sizeStr(episode.mediaSize)),
+              // space
               Expanded(child: SizedBox()),
+              // download button
+              IconButton(
+                icon: ListenableBuilder(
+                  listenable: model,
+                  builder: (context, _) {
+                    return episode.downloaded == true
+                        ? Icon(Icons.storage_outlined)
+                        : Icon(Icons.cloud_download_outlined);
+                  },
+                ),
+                onPressed: episode.mediaType?.contains('audio') == true
+                    ? () => model.downloadEpisode(episode)
+                    : null,
+              ),
               // play button
               IconButton(
                 icon: ListenableBuilder(
                   listenable: model,
                   builder: (context, _) {
                     return model.currentSeqGuid == episode.guid && model.playing
-                        ? Icon(Icons.pause_rounded)
-                        : Icon(Icons.play_arrow_rounded);
+                        ? Icon(Icons.pause_rounded, size: 32.0)
+                        : Icon(Icons.play_arrow_rounded, size: 32.0);
                   },
                 ),
                 onPressed: episode.mediaType?.contains('audio') == true
