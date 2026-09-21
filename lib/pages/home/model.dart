@@ -36,11 +36,13 @@ class HomeViewModel extends ChangeNotifier {
   String _snackMessage = "";
   String? _currentSeqGuid;
   bool? _playing;
+  bool _refreshing = false;
 
   String? get currentSeqGuid => _currentSeqGuid;
   Episode? get currentSeqEpisode =>
       _episodes.where((e) => e.guid == _currentSeqGuid).firstOrNull;
   bool get playing => _playing == true;
+  bool get refreshing => _refreshing;
   List<IndexedAudioSource> get sequence => _sequence;
   double get position => _player.position.inSeconds.toDouble();
   double? get duration => _player.duration?.inSeconds.toDouble();
@@ -117,12 +119,18 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
+    _refreshing = true;
+    notifyListeners();
+
     for (final channel in _channels) {
       if (await _feedRepo.refreshEpisodesByChannel(channel.id)) {
         _log.fine('new episodes found for ${channel.title}');
         notifyListeners();
       }
     }
+
+    _refreshing = false;
+    notifyListeners();
   }
 
   void selectEpisodeType(String newType) {

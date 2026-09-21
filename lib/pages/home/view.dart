@@ -86,9 +86,16 @@ class _HomeViewState extends State<HomeView> {
               );
             },
           ),
-          IconButton(
-            icon: Icon(Icons.refresh_rounded),
-            onPressed: () => widget.model.refresh(),
+          ListenableBuilder(
+            listenable: widget.model,
+            builder: (context, _) {
+              return IconButton(
+                icon: Icon(Icons.refresh_rounded),
+                onPressed: widget.model.refreshing
+                    ? null
+                    : () => widget.model.refresh(),
+              );
+            },
           ),
         ],
       ),
