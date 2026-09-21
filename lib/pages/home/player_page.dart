@@ -19,6 +19,7 @@ class PlayerPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: .center,
         mainAxisAlignment: .center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // channel image
           screenSize.height > 700
@@ -132,10 +133,10 @@ class PlayerPage extends StatelessWidget {
             ],
           ),
           screenSize.height > 700
-              ? Container(
-                  height: 200,
+              ? Padding(
                   padding: .symmetric(horizontal: 20.0),
                   child: ListView.builder(
+                    shrinkWrap: true,
                     itemCount: model.sequence.length,
                     itemBuilder: (context, index) {
                       return ListTile(
