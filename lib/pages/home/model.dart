@@ -51,26 +51,37 @@ class HomeViewModel extends ChangeNotifier {
   void _init() async {
     // _log.fine('init');
     _subPlayerState = _player.playerStateStream.listen((event) async {
-      _log.fine(event.playing);
-      _log.fine(event.processingState);
-      if (event.processingState == ProcessingState.loading ||
-          event.processingState == ProcessingState.buffering) {
-      } else if (event.playing == true) {
+      _log.fine('playing: ${event.playing}');
+      _log.fine('processingState: ${event.processingState}');
+      if (event.playing == true) {
         _playing = true;
+        if (event.processingState == ProcessingState.buffering) {
+          // playing & buffering
+          // seek position: TODO: update bookmark of the episode
+        } else if (event.processingState == ProcessingState.loading) {
+          // playing & loading
+          // media loaded: TODO update media size of the episode
+        }
         notifyListeners();
       } else {
         _playing = false;
+        if (event.processingState == ProcessingState.ready) {
+          // not playing & ready
+          // media paused: TODO update bookmark of the episode
+        }
         notifyListeners();
       }
     });
+
     _subSeqState = _player.sequenceStateStream.listen((event) async {
       final src = event.currentSource;
-      _log.fine(event.currentIndex);
-      _log.fine(src?.tag);
-      _currentSeqGuid = (src?.tag as MediaItem?)?.extras?['guid'];
-      notifyListeners();
+      _log.fine('current index: ${event.currentIndex}');
+      // _log.fine('tag:${src?.tag}');
+      // _currentSeqGuid = (src?.tag as MediaItem?)?.extras?['guid'];
+      _currentSeqGuid = (src?.tag as MediaItem?)?.id;
       _sequence.clear();
       _sequence.addAll(event.sequence);
+      notifyListeners();
     });
   }
 
@@ -167,6 +178,7 @@ class HomeViewModel extends ChangeNotifier {
           ),
         );
         _player.setAudioSource(source);
+        // TODO: apply bookmark here
         _player.play();
       }
     }
