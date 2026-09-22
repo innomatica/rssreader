@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../models/episode.dart';
 import './channel_tile.dart';
 import './episode_tile.dart';
 import './player_page.dart';
