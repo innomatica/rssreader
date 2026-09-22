@@ -90,15 +90,6 @@ class NewsTile extends StatelessWidget {
           : Row(
               spacing: 8.0,
               children: [
-                // // image
-                // episode.imageUrl != null
-                //     ? Image.network(
-                //         episode.imageUrl!,
-                //         width: 40,
-                //         height: 40,
-                //         fit: BoxFit.cover,
-                //       )
-                //     : SizedBox(width: 0, height: 0),
                 // content
                 Flexible(
                   child: Column(

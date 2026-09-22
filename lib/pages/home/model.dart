@@ -94,6 +94,7 @@ class HomeViewModel extends ChangeNotifier {
 
   List<Episode> get episodes =>
       _episodes
+          .where((e) => e.hidden != true)
           .where(
             (e) => _episodeType == 'any'
                 ? true
@@ -187,6 +188,20 @@ class HomeViewModel extends ChangeNotifier {
   Future downloadEpisode(Episode episode) async {
     final res = await _feedRepo.downloadEpisodeMedia(episode);
     if (res) {
+      notifyListeners();
+    }
+  }
+
+  Future hideEpisode(Episode episode) async {
+    // NOTE: do not change the order of executions
+    episode.hidden = true;
+    await _feedRepo.updateEpisode(episode.id, {'hidden': true});
+    await _feedRepo.deleteEpisodeMedia(episode);
+    if (_currentSeqGuid == episode.guid) {
+      // NOTE: this will fire notifyListeners()
+      await _player.stop();
+    } else {
+      // otherwise need to call notifyListeners() here
       notifyListeners();
     }
   }

@@ -345,6 +345,16 @@ class FeedRepository {
     return false;
   }
 
+  Future<bool> deleteEpisodeMedia(Episode episode) async {
+    if (episode.downloaded == true) {
+      final file = File(episode.mediaPath);
+      if (file.existsSync()) {
+        await file.delete();
+      }
+    }
+    return true;
+  }
+
   Future<bool> _downloadResource(String url, String fpath) async {
     bool flag = false;
     try {

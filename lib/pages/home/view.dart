@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../models/episode.dart';
 import './channel_tile.dart';
 import './episode_tile.dart';
 import './player_page.dart';
@@ -114,9 +115,21 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 itemCount: widget.model.episodes.length,
                 itemBuilder: (context, index) {
-                  return EpisodeTile(
-                    episode: widget.model.episodes.elementAt(index),
-                    model: widget.model,
+                  final episode = widget.model.episodes.elementAt(index);
+                  return Dismissible(
+                    key: ValueKey<int>(episode.id),
+                    background: Padding(
+                      padding: .only(right: 300.0),
+                      child: Icon(Icons.delete, color: Colors.redAccent),
+                    ),
+                    secondaryBackground: Padding(
+                      padding: .only(left: 300.0),
+                      child: Icon(Icons.delete, color: Colors.redAccent),
+                    ),
+                    onDismissed: (direction) async {
+                      await widget.model.hideEpisode(episode);
+                    },
+                    child: EpisodeTile(episode: episode, model: widget.model),
                   );
                 },
               );
