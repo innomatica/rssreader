@@ -29,118 +29,62 @@ class NewsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final aspectRatio = MediaQuery.sizeOf(context).aspectRatio;
     final channelTextStyle = TextStyle(
       fontSize: 12,
       color: Theme.of(context).colorScheme.secondary,
     );
     final titleTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
     return ListTile(
-      title: aspectRatio < 1.0
-          // portrait mode
-          ? Column(
-              spacing: 8.0,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // top row: favicon, channel title, date
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      title: Column(
+        spacing: 8.0,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // top row: favicon, channel title, date
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Row(
+                  spacing: 8.0,
                   children: [
+                    ThumbnailImage(
+                      episode.channelImage,
+                      width: 16,
+                      height: 16,
+                      borderRadius: 2.0,
+                    ),
                     Flexible(
-                      child: Row(
-                        spacing: 8.0,
-                        children: [
-                          ThumbnailImage(
-                            episode.channelImage,
-                            width: 16,
-                            height: 16,
-                            borderRadius: 2.0,
-                          ),
-                          Flexible(
-                            child: Text(
-                              episode.channelTitle ?? "",
-                              overflow: TextOverflow.ellipsis,
-                              style: channelTextStyle,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        episode.channelTitle ?? "",
+                        overflow: TextOverflow.ellipsis,
+                        style: channelTextStyle,
                       ),
                     ),
-                    Text(mmddHHMM(episode.published), style: channelTextStyle),
                   ],
                 ),
-                // image
-                episode.imageUrl != null
-                    ? ThumbnailImage(
-                        episode.image,
-                        width: double.maxFinite,
-                        height: 180,
-                      )
-                    : SizedBox(),
-                // title
-                Text(
-                  episode.title ?? '',
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                  style: titleTextStyle,
-                ),
-              ],
-            )
-          // landscape mode
-          : Row(
-              spacing: 8.0,
-              children: [
-                // content
-                Flexible(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // icon, channel, date
-                      Row(
-                        spacing: 24,
-                        children: [
-                          Row(
-                            spacing: 8.0,
-                            children: [
-                              ThumbnailImage(
-                                episode.channelImage,
-                                width: 16,
-                                height: 16,
-                                borderRadius: 2.0,
-                              ),
-                              Text(
-                                episode.channelTitle ?? "",
-                                style: channelTextStyle,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            mmddHHMM(episode.published),
-                            style: channelTextStyle,
-                          ),
-                        ],
-                      ),
-                      // episode title
-                      // Row > Flexible: limit the width
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              episode.title ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: titleTextStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Text(mmddHHMM(episode.published), style: channelTextStyle),
+            ],
+          ),
+          // image
+          episode.imageUrl != null
+              ? ThumbnailImage(
+                  episode.image,
+                  width: double.maxFinite,
+                  height: 180,
+                )
+              : SizedBox(),
+          // title
+          Text(
+            episode.title ?? '',
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: titleTextStyle,
+          ),
+        ],
+      ),
+      // landscape mode
+
       onTap: () => handleTap(context, episode),
     );
   }

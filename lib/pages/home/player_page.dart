@@ -10,10 +10,8 @@ class PlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
     double sliderPos = 0;
     bool sliderChg = false;
-    // print('screenSize:$screenSize');
 
     return Center(
       child: Column(
@@ -22,17 +20,16 @@ class PlayerPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // channel image
-          screenSize.height > 700
-              ? Padding(
-                  padding: const .only(bottom: 32.0),
-                  child: ThumbnailImage(
-                    model.currentSeqEpisode?.channelImage,
-                    width: 200,
-                    height: 200,
-                    borderRadius: 12.0,
-                  ),
-                )
-              : SizedBox(height: 0.0),
+          Padding(
+            padding: const .only(bottom: 32.0),
+            child: ThumbnailImage(
+              model.currentSeqEpisode?.channelImage,
+              width: 200,
+              height: 200,
+              borderRadius: 12.0,
+            ),
+          ),
+
           // position slider
           StreamBuilder(
             stream: model.positionStream.distinct(
@@ -49,9 +46,7 @@ class PlayerPage extends StatelessWidget {
                     value: sliderPos,
                     max: model.duration ?? 100.0,
                     divisions: model.duration?.toInt() ?? 100,
-                    padding: .symmetric(
-                      horizontal: screenSize.width > 500 ? 200.0 : 32.0,
-                    ),
+                    padding: .symmetric(horizontal: 32.0),
                     label: secsToHhMmSs(sliderPos.toInt()),
                     onChanged: (value) {
                       setState(() {});
@@ -71,9 +66,7 @@ class PlayerPage extends StatelessWidget {
           ),
           // current position and media duration
           Padding(
-            padding: .symmetric(
-              horizontal: screenSize.width > 500 ? 200.0 : 32.0,
-            ),
+            padding: .symmetric(horizontal: 32.0),
             child: Row(
               mainAxisAlignment: .spaceBetween,
               children: [
@@ -132,25 +125,22 @@ class PlayerPage extends StatelessWidget {
               ),
             ],
           ),
-          screenSize.height > 700
-              ? Padding(
-                  padding: .symmetric(horizontal: 20.0),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: model.sequence.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          model.sequence[index].tag.extras['title'] ??
-                              'unknown',
-                          maxLines: 1,
-                          overflow: .ellipsis,
-                        ),
-                      );
-                    },
+          Padding(
+            padding: .symmetric(horizontal: 20.0),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: model.sequence.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    model.sequence[index].tag.extras['title'] ?? 'unknown',
+                    maxLines: 1,
+                    overflow: .ellipsis,
                   ),
-                )
-              : SizedBox(height: 0.0),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

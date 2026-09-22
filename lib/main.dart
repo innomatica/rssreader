@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:audio_session/audio_session.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio_background/just_audio_background.dart'
     show JustAudioBackground;
 import 'package:logging/logging.dart' show Logger, Level;
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart' show MultiProvider;
-import 'package:rssread/shared/dependencies.dart';
 import 'package:path_provider/path_provider.dart'
     show getApplicationDocumentsDirectory;
+import 'package:provider/provider.dart' show MultiProvider;
 
 import 'shared/constants.dart' show appName, appDocPath;
+import 'shared/dependencies.dart';
 import 'shared/routing.dart' show router;
 
 Future<void> main() async {
@@ -24,17 +24,24 @@ Future<void> main() async {
   });
 
   WidgetsFlutterBinding.ensureInitialized();
+
   // initialize just audio background
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
-  // configure audio session
-  final session = await AudioSession.instance;
-  await session.configure(const AudioSessionConfiguration.music());
+  // // configure audio session
+  // final session = await AudioSession.instance;
+  // await session.configure(const AudioSessionConfiguration.music());
 
-  // application document directory path
+  // lock screen orientation
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // get application document directory path
   appDocPath = (await getApplicationDocumentsDirectory()).path;
 
   runApp(MultiProvider(providers: providers, child: const MyApp()));
