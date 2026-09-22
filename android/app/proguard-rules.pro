@@ -1,0 +1,3 @@
+-keep class com.ryanheise.audioservice.** { *; }
+-keep class com.google.android.exoplayer2.** { *; }
+-keep class androidx.media.** { *; }
