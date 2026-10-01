@@ -85,7 +85,8 @@ class FeedRepository {
     _log.fine('subscribe');
     final channelId = await createChannel(channel);
     if (channelId > 0) {
-      return await refreshEpisodesByChannel(channelId);
+      await refreshEpisodesByChannel(channelId);
+      return true;
     }
     return false;
   }
@@ -287,13 +288,16 @@ class FeedRepository {
     }
   }
 
-  Future<bool> refreshEpisodesByChannel(int channelId) async {
-    bool flag = false;
+  Future<Map<String, List<dynamic>>> refreshEpisodesByChannel(
+    int channelId,
+  ) async {
     _log.fine('refreshEpisode: $channelId');
+
+    final result = {"deleted": <int>[], "created": <Episode>[]};
     final channel = await getChannelById(channelId);
     if (channel == null) {
       _log.info('no channel found with $channelId');
-      return false;
+      return result;
     }
 
     // get existing episodes
@@ -306,13 +310,14 @@ class FeedRepository {
       if (episode.published.isBefore(saveAfter)) {
         _log.fine('expired:${episode.published}');
         await deleteEpisode(episode);
+        (result['deleted'] as List).add(episode.id);
       }
     }
     // get new episodes
     final feed = await fetchFeed(channel.url);
     if (feed == null) {
       _log.warning('fetching feeds yields null');
-      return false;
+      return result;
     }
 
     for (final episode in feed.episodes) {
@@ -323,11 +328,12 @@ class FeedRepository {
         _log.fine('newly pub: ${episode.published}');
         // this is a not null field: check db schema
         episode.channelId = channelId;
-        await createEpisode(episode);
-        flag = true;
+        final episodeId = await createEpisode(episode);
+        episode.id = episodeId;
+        (result['created'] as List).add(episode);
       }
     }
-    return flag;
+    return result;
   }
 
   Future<bool> downloadEpisodeMedia(Episode episode) async {

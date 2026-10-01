@@ -58,6 +58,7 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         title: const Text("RSS Reader"),
         actions: [
+          // article button
           ListenableBuilder(
             listenable: widget.model,
             builder: (context, _) {
@@ -72,6 +73,7 @@ class _HomeViewState extends State<HomeView> {
               );
             },
           ),
+          // podcast button
           ListenableBuilder(
             listenable: widget.model,
             builder: (context, _) {
@@ -86,6 +88,7 @@ class _HomeViewState extends State<HomeView> {
               );
             },
           ),
+          // refresh button
           ListenableBuilder(
             listenable: widget.model,
             builder: (context, _) {
@@ -126,7 +129,7 @@ class _HomeViewState extends State<HomeView> {
                       child: Icon(Icons.delete, color: Colors.redAccent),
                     ),
                     onDismissed: (direction) async {
-                      await widget.model.hideEpisode(episode);
+                      await widget.model.hideEpisode(episode, forceStop: true);
                     },
                     child: EpisodeTile(episode: episode, model: widget.model),
                   );

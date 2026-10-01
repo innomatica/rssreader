@@ -61,6 +61,11 @@ class HomeViewModel extends ChangeNotifier {
         } else if (event.processingState == ProcessingState.loading) {
           // playing & loading
           // media loaded: TODO update media size of the episode
+        } else if (event.processingState == ProcessingState.completed) {
+          // completed
+          if (currentSeqEpisode != null) {
+            hideEpisode(currentSeqEpisode!);
+          }
         }
         notifyListeners();
       } else {
@@ -135,8 +140,17 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
 
     for (final channel in _channels) {
-      if (await _feedRepo.refreshEpisodesByChannel(channel.id)) {
-        _log.fine('new episodes found for ${channel.title}');
+      final res = await _feedRepo.refreshEpisodesByChannel(channel.id);
+
+      if (res['created'] != null && (res['created'] as List).isNotEmpty) {
+        _log.fine('episodes created for ${channel.title}');
+        _episodes.addAll(res['created']! as List<Episode>);
+        notifyListeners();
+      }
+
+      if (res['deleted'] != null && (res['deleted'] as List).isNotEmpty) {
+        _log.fine('episodes deleted for ${channel.title}');
+        _episodes.removeWhere((e) => res['delete']!.contains(e));
         notifyListeners();
       }
     }
@@ -192,12 +206,12 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future hideEpisode(Episode episode) async {
+  Future hideEpisode(Episode episode, {bool forceStop = false}) async {
     // NOTE: do not change the order of executions
     episode.hidden = true;
-    await _feedRepo.updateEpisode(episode.id, {'hidden': true});
+    await _feedRepo.updateEpisode(episode.id, {'hidden': 1});
     await _feedRepo.deleteEpisodeMedia(episode);
-    if (_currentSeqGuid == episode.guid) {
+    if (_currentSeqGuid == episode.guid && forceStop) {
       // NOTE: this will fire notifyListeners()
       await _player.stop();
     } else {
