@@ -8,42 +8,45 @@ class DatabaseService {
   final _log = Logger('DatabaseService');
 
   Future<Database> getDatabase() async {
-    return _db ??
-        await openDatabase(
-          dbName,
-          version: dbVersion,
-          onConfigure: (db) => db.execute(pragmaFgKey),
-          onCreate: (db, version) {
-            _log.info('create database:$db, $version');
-            for (int i = 1; i <= version; i++) {
-              try {
-                final item = dbMigration.firstWhere((e) => e["version"] == i);
-                for (final sql in item["scripts"]) {
-                  _log.fine({"version": i, "sql": sql});
-                  db.execute(sql);
-                }
-              } on Exception catch (e) {
-                _log.severe(e.toString());
-                rethrow;
+    if (_db == null) {
+      _db = await openDatabase(
+        dbName,
+        version: dbVersion,
+        onConfigure: (db) => db.execute(pragmaFgKey),
+        onCreate: (db, version) {
+          _log.info('create database:$db, $version');
+          for (int i = 1; i <= version; i++) {
+            try {
+              final item = dbMigration.firstWhere((e) => e["version"] == i);
+              for (final sql in item["scripts"]) {
+                _log.fine({"version": i, "sql": sql});
+                db.execute(sql);
               }
+            } on Exception catch (e) {
+              _log.severe(e.toString());
+              rethrow;
             }
-          },
-          onUpgrade: (db, oldVersion, newVersion) {
-            _log.info('upgrade database:$db from $oldVersion to $newVersion');
-            for (int i = oldVersion + 1; i <= newVersion; i++) {
-              try {
-                final item = dbMigration.firstWhere((e) => e["version"] == i);
-                for (String sql in item["scripts"]) {
-                  _log.fine({"version": i, "sql": sql});
-                  db.execute(sql);
-                }
-              } on Exception catch (e) {
-                _log.severe(e.toString());
-                rethrow;
+          }
+        },
+        onUpgrade: (db, oldVersion, newVersion) {
+          _log.info('upgrade database:$db from $oldVersion to $newVersion');
+          for (int i = oldVersion + 1; i <= newVersion; i++) {
+            try {
+              final item = dbMigration.firstWhere((e) => e["version"] == i);
+              for (String sql in item["scripts"]) {
+                _log.fine({"version": i, "sql": sql});
+                db.execute(sql);
               }
+            } on Exception catch (e) {
+              _log.severe(e.toString());
+              rethrow;
             }
-          },
-        );
+          }
+        },
+      );
+      _db!.rawQuery('PRAGMA journal_mode=WAL;');
+    }
+    return _db!;
   }
 
   Future<List<Map<String, Object?>>> queryAll(
