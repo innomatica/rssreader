@@ -31,7 +31,7 @@ class Episode {
   String? imageUrl;
   Map<String, dynamic>? extras;
   // internal use
-  bool? downloaded;
+  String? localMedia;
   bool? hidden;
   bool? liked;
   // filled after channel save
@@ -67,7 +67,7 @@ class Episode {
     this.imageUrl,
     this.extras,
     this.channelId,
-    this.downloaded,
+    this.localMedia,
     this.hidden,
     this.liked,
     // from JOIN with channel
@@ -87,8 +87,8 @@ class Episode {
   // channel thumbnail image path
   String get channelImagePath => "$appDocPath/$channelId/$chnImgFname";
   // episode media path
-  String get mediaPath =>
-      "$appDocPath/$channelId/${guid.replaceAll('/', '\\')}";
+  // String get mediaPath =>
+  //     "$appDocPath/$channelId/${guid.replaceAll('/', '\\')}";
   // String? get imageFname =>
   //     imageUrl != null ? Uri.tryParse(imageUrl!)?.path.split('/').last : null;
 
@@ -116,7 +116,7 @@ class Episode {
       mediaSeekPos: row['media_seek_pos'] as int?,
       imageUrl: row['image_url'] as String?,
       extras: jsonDecode(row['extras'] as String? ?? "null"),
-      downloaded: row['downloaded'] == 1,
+      localMedia: row['local_media'] as String?,
       hidden: row['hidden'] == 1,
       liked: row['liked'] == 1,
       // from channel by inner join
@@ -211,7 +211,7 @@ class Episode {
       "image_url": imageUrl,
       "extras": jsonEncode(extras),
       "channel_id": channelId,
-      "downloaded": downloaded == true ? 1 : 0,
+      "local_media": localMedia,
       "hidden": hidden == true ? 1 : 0,
       "liked": liked == true ? 1 : 0,
     };

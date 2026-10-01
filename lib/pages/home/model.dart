@@ -168,8 +168,8 @@ class HomeViewModel extends ChangeNotifier {
       if (episode.mediaType?.contains('audio') == true &&
           episode.mediaUrl != null) {
         final source = AudioSource.uri(
-          episode.downloaded == true
-              ? Uri.parse(episode.mediaPath)
+          episode.localMedia?.isNotEmpty == true
+              ? Uri.parse(episode.localMedia!)
               : Uri.parse(episode.mediaUrl!),
           tag: MediaItem(
             id: episode.guid,

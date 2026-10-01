@@ -39,7 +39,7 @@ const createEpisodes = '''CREATE TABLE episodes (
   image_url TEXT,
   extras TEXT,
   channel_id INTEGER NOT NULL,
-  downloaded INTEGER,
+  local_media TEXT,
   hidden INTEGER,
   liked INTEGER,
   FOREIGN KEY (channel_id)

@@ -274,8 +274,8 @@ class FeedRepository {
         }
       }
       // delete local media
-      if (episode.isPodcast == true) {
-        final file = File(episode.mediaPath);
+      if (episode.isPodcast == true && episode.localMedia != null) {
+        final file = File(episode.localMedia!);
         if (file.existsSync()) {
           await file.delete();
         }
@@ -332,12 +332,14 @@ class FeedRepository {
 
   Future<bool> downloadEpisodeMedia(Episode episode) async {
     // download media to local storage
-    if (episode.mediaUrl != null) {
-      if (await _downloadResource(episode.mediaUrl!, episode.mediaPath)) {
+    if (episode.mediaUrl != null && episode.channelId != null) {
+      final localMediaPath =
+          '$appDocPath/${episode.channelId}/${episode.mediaUrl.hashCode}';
+      if (await _downloadResource(episode.mediaUrl!, localMediaPath)) {
         // download successful
-        episode.downloaded = true;
+        episode.localMedia = localMediaPath;
         // note downloaded field type is integer
-        await updateEpisode(episode.id, {"downloaded": 1});
+        await updateEpisode(episode.id, {"local_media": localMediaPath});
         return true;
       }
     }
@@ -346,8 +348,8 @@ class FeedRepository {
   }
 
   Future<bool> deleteEpisodeMedia(Episode episode) async {
-    if (episode.downloaded == true) {
-      final file = File(episode.mediaPath);
+    if (episode.localMedia?.isNotEmpty == true) {
+      final file = File(episode.localMedia!);
       if (file.existsSync()) {
         await file.delete();
       }
@@ -362,7 +364,7 @@ class FeedRepository {
       final req = http.Request('GET', Uri.parse(url));
       final res = await client.send(req);
       if (res.statusCode == 200) {
-        _log.fine('downloading: $url to $fpath');
+        _log.fine('downloading: $url');
         final file = File(fpath);
         await file.create(recursive: true);
         final sink = file.openWrite();

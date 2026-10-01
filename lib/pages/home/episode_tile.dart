@@ -163,7 +163,7 @@ class PodcastTile extends StatelessWidget {
                 icon: ListenableBuilder(
                   listenable: model,
                   builder: (context, _) {
-                    return episode.downloaded == true
+                    return episode.localMedia?.isNotEmpty == true
                         ? Icon(Icons.storage_outlined)
                         : Icon(Icons.cloud_download_outlined);
                   },
