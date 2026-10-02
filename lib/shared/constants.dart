@@ -1,12 +1,23 @@
 const appName = "RSS Reader";
-const appVersion = '0.0.1+1';
+const appVersion = '0.1.4+5';
 const appId = 'ca.innomatic.rssread';
 
 const developerWebsite = 'https://innomatic.ca';
+const sourceRepository = 'https://github.com/innomatica/rssreader';
+const privacyPolicy = 'https://innomatica.github.io/rssreader/privacy';
+const playStore =
+    'https://play.google.com/store/apps/details?id=ca.innomatic.rssread';
 
 // podcast index
+const pcIdxSite = 'https://podcastindex.org/';
 const pcIdxEndpoint = 'https://api.podcastindex.org/api/1.0';
 const pcIdxHost = 'api.podcastindex.org';
+
+// sample feeds
+const sampleFeeds = 'https://innomatica.github.io/rssreader/sample_feed';
+
+// other urls
+const flatIconSite = 'https://www.flaticon.com/';
 
 // asset images
 const assetImgMicrophone = 'assets/images/microphone.png';

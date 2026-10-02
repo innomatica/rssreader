@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import './channel_tile.dart';
 import './episode_tile.dart';
 import './player_page.dart';
 import '../../pages/home/model.dart';
+import '../../shared/constants.dart';
 
 class HomeView extends StatefulWidget {
   final HomeViewModel model;
@@ -56,7 +58,7 @@ class _HomeViewState extends State<HomeView> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: const Text("RSS Reader"),
+        // title: const Text(appName),
         actions: [
           // article button
           ListenableBuilder(
@@ -102,6 +104,91 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
+      // drawer
+      drawer: Drawer(
+        child: ListView(
+          padding: .zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // app name
+                  Text(
+                    appName,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  Text(
+                    'free and open-source',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16,
+                      // fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  // app version
+                  Text(
+                    appVersion,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // source repository
+            ListTile(
+              // leading: const Icon(Icons.code_rounded),
+              title: const Text('Source Repository'),
+              onTap: () => launchUrl(Uri.parse(sourceRepository)),
+            ),
+            // privacy policy
+            ListTile(
+              // leading: const Icon(Icons.list_rounded),
+              title: const Text('Privacy Policy'),
+              onTap: () => launchUrl(Uri.parse(privacyPolicy)),
+            ),
+            // privacy policy
+            ListTile(
+              // leading: const Icon(Icons.play),
+              title: const Text('Play Store'),
+              onTap: () => launchUrl(Uri.parse(playStore)),
+            ),
+            // developer website
+            ListTile(
+              // leading: const Icon(Icons.web_rounded),
+              title: const Text('Developer Website'),
+              onTap: () => launchUrl(Uri.parse(developerWebsite)),
+            ),
+            // attributions
+            ListTile(
+              // leading: const Icon(Icons.web_rounded),
+              title: const Text('Attributions'),
+              subtitle: Column(
+                children: [
+                  ListTile(
+                    title: const Text('Podcast Index'),
+                    onTap: () => launchUrl(Uri.parse(pcIdxSite)),
+                  ),
+                  ListTile(
+                    title: const Text('FlatIcon'),
+                    onTap: () => launchUrl(Uri.parse(pcIdxSite)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const .symmetric(vertical: 8.0),
         child: <Widget>[
@@ -120,13 +207,18 @@ class _HomeViewState extends State<HomeView> {
                   final episode = widget.model.episodes.elementAt(index);
                   return Dismissible(
                     key: ValueKey<int>(episode.id),
-                    background: Padding(
-                      padding: .only(right: 300.0),
-                      child: Icon(Icons.delete, color: Colors.redAccent),
-                    ),
-                    secondaryBackground: Padding(
-                      padding: .only(left: 300.0),
-                      child: Icon(Icons.delete, color: Colors.redAccent),
+                    direction: DismissDirection.endToStart,
+                    background: SizedBox(),
+                    secondaryBackground: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          Icons.delete_forever_outlined,
+                          color: Colors.redAccent,
+                          size: 40,
+                        ),
+                        SizedBox(width: 40),
+                      ],
                     ),
                     onDismissed: (direction) async {
                       await widget.model.hideEpisode(episode, forceStop: true);
