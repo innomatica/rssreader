@@ -96,7 +96,7 @@ class _HomeViewState extends State<HomeView> {
                 icon: Icon(Icons.refresh_rounded),
                 onPressed: widget.model.refreshing
                     ? null
-                    : () => widget.model.refresh(),
+                    : () async => await widget.model.refresh(),
               );
             },
           ),
