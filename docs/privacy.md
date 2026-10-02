@@ -1,3 +1,7 @@
+---
+layut: default
+---
+
 # Privacy Policy
 
 **Last updated:** 2026.09.17

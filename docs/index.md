@@ -1,2 +1,2 @@
-* [Privacy Policy](policy.md)
-* [Sample Feeds](sample_feed.md)
+* [Privacy Policy](policy.html)
+* [Sample Feeds](sample_feed.html)
