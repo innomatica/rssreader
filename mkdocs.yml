@@ -1,0 +1,9 @@
+site_name: RSS Reader
+theme: readthedocs
+markdown_extensions:
+  - attr_list
+
+repo_url: https://innomatica.github.io/rssread/
+repo_name: GitHub
+docs_dir: extra/docs
+site_dir: docs
