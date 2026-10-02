@@ -58,7 +58,7 @@ const List<Map<String, String>> rssDirectories = [
   },
   {
     "title": "Sample Feeds",
-    "url": 'https://innomatica.github.io/rssreader/sample_feed',
+    "url": 'https://innomatica.github.io/rssreader/sample_feeds',
   },
   // {"title": 'Open RSS', "url": 'https://openrss.org/'},
   // {"title": "Podnews.net", "url": 'https://podnews.net/podcasts'},
