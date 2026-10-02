@@ -1,2 +1,4 @@
-* [Privacy Policy](policy.md)
-* [Sample Feeds](sample_feed.md)
+# RSS Reader
+
+* [Privacy Policy](./privacy.md)
+* [Sample Feeds](./sample_feeds.md)

@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # News
 
 * [Al Jazeera News](https://www.aljazeera.com/xml/rss/all.xml)
