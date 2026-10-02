@@ -156,8 +156,6 @@ class PodcastTile extends StatelessWidget {
               episode.mediaDuration != null
                   ? Text(secsToHhMmSs(episode.mediaDuration))
                   : Text(sizeStr(episode.mediaSize)),
-              // space
-              Expanded(child: SizedBox()),
               // download button
               IconButton(
                 icon: ListenableBuilder(
@@ -172,7 +170,14 @@ class PodcastTile extends StatelessWidget {
                     ? () => model.downloadEpisode(episode)
                     : null,
               ),
-              // play button
+              // space
+              Expanded(child: SizedBox()),
+              // rewind, play, ff buttons
+              // back 30 sec
+              IconButton(
+                onPressed: () => model.forward(-30),
+                icon: Icon(Icons.replay_30_rounded),
+              ),
               IconButton(
                 icon: ListenableBuilder(
                   listenable: model,
@@ -185,6 +190,11 @@ class PodcastTile extends StatelessWidget {
                 onPressed: episode.mediaType?.contains('audio') == true
                     ? () => model.playEpisode(episode)
                     : null,
+              ),
+              // forward 30 sec
+              IconButton(
+                onPressed: () => model.forward(30),
+                icon: Icon(Icons.forward_30_rounded),
               ),
             ],
           ),
