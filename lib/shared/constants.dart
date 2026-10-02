@@ -14,7 +14,7 @@ const pcIdxEndpoint = 'https://api.podcastindex.org/api/1.0';
 const pcIdxHost = 'api.podcastindex.org';
 
 // sample feeds
-const sampleFeeds = 'https://innomatica.github.io/rssreader/sample_feed';
+// const sampleFeeds = 'https://innomatica.github.io/rssreader/sample_feed';
 
 // other urls
 const flatIconSite = 'https://www.flaticon.com/';
@@ -55,6 +55,10 @@ const List<Map<String, String>> rssDirectories = [
   {
     "title": 'Lighthouse Feed Finder',
     "url": 'https://lighthouseapp.io/tools/feed-finder',
+  },
+  {
+    "title": "Sample Feeds",
+    "url": 'https://innomatica.github.io/rssreader/sample_feed',
   },
   // {"title": 'Open RSS', "url": 'https://openrss.org/'},
   // {"title": "Podnews.net", "url": 'https://podnews.net/podcasts'},
