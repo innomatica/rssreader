@@ -3,6 +3,7 @@ import 'package:logging/logging.dart' show Logger;
 
 import '../../data/repo/feed.dart';
 import '../../models/channel.dart';
+import '../../models/episode.dart';
 
 class ChannelViewModel extends ChangeNotifier {
   final FeedRepository _feedRepo;
@@ -12,11 +13,13 @@ class ChannelViewModel extends ChangeNotifier {
 
   final _log = Logger('ChannelViewModel');
   Channel? _channel;
+  final List<Episode> _episodes = <Episode>[];
   String _snackMessage = '';
   bool _isLoading = true;
 
   String get snackMessage => _snackMessage;
   Channel? get channel => _channel;
+  List<Episode> get episodes => _episodes;
   bool get isPodcast => _channel?.isPodcast == true;
   bool get hasContent => _channel?.hasContent == true;
   String? get author => _channel?.author;
@@ -30,6 +33,9 @@ class ChannelViewModel extends ChangeNotifier {
 
     if (channelId != null) {
       _channel = await _feedRepo.getChannelById(channelId);
+      final episodes = await _feedRepo.getEpisodesByChannel(channelId);
+      _episodes.clear();
+      _episodes.addAll(episodes);
       _isLoading = false;
       _log.fine('load:$_channel');
       notifyListeners();

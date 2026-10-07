@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../shared/helpers.dart' show daysAgo;
 import '../../shared/widgets.dart' show ThumbnailImage;
 import './model.dart';
 
@@ -206,23 +207,27 @@ class _ChannelViewState extends State<ChannelView> {
                               ),
                             ],
                           ),
-                          // // space
-                          // SizedBox(height: 32.0),
-                          // // cancel the channel
-                          // Center(
-                          //   child: OutlinedButton(
-                          //     style: OutlinedButton.styleFrom(
-                          //       side: BorderSide(
-                          //         color: Theme.of(context).colorScheme.error,
-                          //       ),
-                          //       foregroundColor: Theme.of(context)
-                          //           .colorScheme
-                          //           .error,
-                          //     ),
-                          //     onPressed: () => widget.model.unsubscribe(),
-                          //     child: Text('Cancel this channel'),
-                          //   ),
-                          // ),
+                          // episodes
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: widget.model.episodes.length,
+                            itemBuilder: (_, index) {
+                              final episode = widget.model.episodes[index];
+                              return ListTile(
+                                title: Text(
+                                  daysAgo(episode.published),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary,
+                                  ),
+                                ),
+                                subtitle: Text(episode.title ?? ''),
+                                dense: true,
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ],
