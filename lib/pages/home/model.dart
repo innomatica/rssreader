@@ -13,8 +13,6 @@ import '../../data/repo/feed.dart' show FeedRepository;
 import '../../models/channel.dart';
 import '../../models/episode.dart' show Episode;
 
-// import '../../models/feed.dart' show Feed;
-
 class HomeViewModel extends ChangeNotifier {
   final FeedRepository _feedRepo;
   final AudioPlayer _player;
@@ -150,7 +148,7 @@ class HomeViewModel extends ChangeNotifier {
 
       if (res['deleted'] != null && (res['deleted'] as List).isNotEmpty) {
         _log.fine('episodes deleted for ${channel.title}');
-        _episodes.removeWhere((e) => res['delete']!.contains(e));
+        _episodes.removeWhere((e) => res['deleted']!.contains(e));
         notifyListeners();
       }
     }
