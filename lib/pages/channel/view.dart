@@ -207,7 +207,7 @@ class _ChannelViewState extends State<ChannelView> {
                               ),
                             ],
                           ),
-                          // episodes
+                          // episode list
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -225,6 +225,20 @@ class _ChannelViewState extends State<ChannelView> {
                                 ),
                                 subtitle: Text(episode.title ?? ''),
                                 dense: true,
+                                trailing: ListenableBuilder(
+                                  listenable: widget.model,
+                                  builder: (context, _) {
+                                    return IconButton(
+                                      icon: Icon(
+                                        episode.hidden == true
+                                            ? Icons.visibility_off_rounded
+                                            : Icons.visibility_rounded,
+                                      ),
+                                      onPressed: () =>
+                                          widget.model.showHideEpisode(episode),
+                                    );
+                                  },
+                                ),
                               );
                             },
                           ),

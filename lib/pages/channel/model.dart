@@ -65,6 +65,17 @@ class ChannelViewModel extends ChangeNotifier {
     }
   }
 
+  Future showHideEpisode(Episode episode) async {
+    if (episode.hidden == true) {
+      await _feedRepo.updateEpisode(episode.id, {'hidden': 0});
+      episode.hidden = false;
+    } else {
+      await _feedRepo.updateEpisode(episode.id, {'hidden': 1});
+      episode.hidden = true;
+    }
+    notifyListeners();
+  }
+
   void clearSnackMessage() {
     _snackMessage = '';
   }
