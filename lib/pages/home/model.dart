@@ -143,13 +143,13 @@ class HomeViewModel extends ChangeNotifier {
       if (res['created'] != null && (res['created'] as List).isNotEmpty) {
         _log.fine('episodes created for ${channel.title}');
         _episodes.addAll(res['created']! as List<Episode>);
-        notifyListeners();
+        // notifyListeners();
       }
 
       if (res['deleted'] != null && (res['deleted'] as List).isNotEmpty) {
         _log.fine('episodes deleted for ${channel.title}');
         _episodes.removeWhere((e) => res['deleted']!.contains(e));
-        notifyListeners();
+        // notifyListeners();
       }
     }
 

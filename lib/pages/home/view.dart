@@ -196,6 +196,7 @@ class _HomeViewState extends State<HomeView> {
           ListenableBuilder(
             listenable: widget.model,
             builder: (context, _) {
+              print('---------episode recreated----------');
               return ListView.separated(
                 key: const PageStorageKey('episode_list_key'),
                 separatorBuilder: (context, _) => Padding(
@@ -215,7 +216,7 @@ class _HomeViewState extends State<HomeView> {
                         Icon(
                           Icons.delete_forever_outlined,
                           color: Colors.redAccent,
-                          size: 40,
+                          size: 30,
                         ),
                         SizedBox(width: 40),
                       ],

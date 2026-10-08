@@ -299,7 +299,7 @@ void handleTap(BuildContext context, Episode episode) {
                         ),
                       ),
                       // Text(episode.published.toString()),
-                      Text(daysAgo(episode.published)),
+                      Text(daysAgo(episode.published, shortForm: false)),
                       SizedBox(width: 12.0),
                     ],
                   ),

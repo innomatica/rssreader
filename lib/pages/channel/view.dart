@@ -106,7 +106,7 @@ class _ChannelViewState extends State<ChannelView> {
                         builder: (context, _) {
                           return ThumbnailImage(
                             widget.model.channel?.image,
-                            height: 100.0,
+                            height: 180.0,
                             width: double.maxFinite,
                           );
                         },

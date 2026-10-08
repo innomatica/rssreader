@@ -21,13 +21,17 @@ String sizeStr(int? size) {
   return "??kb";
 }
 
-String daysAgo(DateTime? date) {
+String daysAgo(DateTime? date, {bool shortForm = true}) {
   if (date != null) {
     final days = DateTime.now().difference(date).inDays;
     return days < 1
         ? 'today'
         : days == 1
-        ? 'yesterday'
+        ? shortForm
+              ? '1d'
+              : 'yesterday'
+        : shortForm
+        ? '${days}d'
         : '$days days ago';
   }
   return 'n/a';
