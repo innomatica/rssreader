@@ -1,12 +1,13 @@
+import 'dart:async' show Timer;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rssread/pages/home/player_fab.dart';
 
 import './channel_page.dart';
 import './episode_page.dart';
-// import './player_page.dart';
+import './model.dart';
 import './side_panel.dart';
-import '../../pages/home/model.dart';
 
 class HomeView extends StatefulWidget {
   final HomeViewModel model;
@@ -19,6 +20,8 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int currentPageIndex = 0;
+  Timer? _sleepTimer;
+  int timeout = 0;
 
   @override
   void initState() {
@@ -30,6 +33,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   void dispose() {
     widget.model.removeListener(_onViewModelChange);
+    _sleepTimer?.cancel();
     super.dispose();
   }
 
@@ -44,8 +48,34 @@ class _HomeViewState extends State<HomeView> {
 
   Future<void> _handleRefresh() async {
     await widget.model.refresh();
-    // TODO: check if necessary
-    // setState(() {});
+  }
+
+  void _handleSleepTimer() {
+    if (_sleepTimer != null && _sleepTimer!.isActive == true) {
+      //
+      if (timeout < 10) {
+        timeout = 0;
+        widget.model.stop();
+        _sleepTimer?.cancel();
+        setState(() {});
+      } else if (timeout < 20) {
+        timeout = 10;
+      } else if (timeout < 30) {
+        timeout = 20;
+      } else {
+        timeout = 30;
+      }
+    } else {
+      timeout = 60;
+      _sleepTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+        timeout = timeout - 1;
+        if (timeout == 0) {
+          widget.model.stop();
+          _sleepTimer?.cancel();
+        }
+        setState(() {});
+      });
+    }
   }
 
   @override
@@ -54,7 +84,22 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         // title: const Text(appName),
         actions: [
-          // TODO: sleep button
+          // sleep timer
+          ListenableBuilder(
+            listenable: widget.model,
+            builder: (context, _) {
+              return widget.model.playing
+                  ? TextButton.icon(
+                      icon: Icon(Icons.bedtime_outlined),
+                      label: timeout == 0
+                          ? SizedBox()
+                          : Text(timeout.toString()),
+                      iconAlignment: IconAlignment.end,
+                      onPressed: () => _handleSleepTimer(),
+                    )
+                  : SizedBox();
+            },
+          ),
         ],
       ),
       // drawer
