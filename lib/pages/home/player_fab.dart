@@ -67,8 +67,10 @@ class _PlayerFABState extends State<PlayerFAB> {
                             stream: widget.model.positionStream.distinct(
                               (prev, next) => prev.inSeconds == next.inSeconds,
                             ),
-                            builder: (context, snapshot) =>
-                                Text(secsToHhMmSs(snapshot.data?.inSeconds)),
+                            builder: (context, snapshot) => Text(
+                              secsToHhMmSs(snapshot.data?.inSeconds),
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                           // slider
                           SizedBox(
@@ -116,13 +118,14 @@ class _PlayerFABState extends State<PlayerFAB> {
                             secsToHhMmSs(
                               widget.model.duration?.toInt() ?? 3600,
                             ),
+                            style: TextStyle(fontSize: 12),
                           ),
                           // Text('end', style: TextStyle(fontSize: 12)),
                         ],
                       )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
-                        spacing: 5,
+                        spacing: 0,
                         children: [
                           IconButton(
                             onPressed: showSlider,
@@ -141,7 +144,7 @@ class _PlayerFABState extends State<PlayerFAB> {
                             icon: widget.model.playing
                                 ? Icon(Icons.pause_rounded)
                                 : Icon(Icons.play_arrow_rounded),
-                            iconSize: 40,
+                            iconSize: 36,
                           ),
                           IconButton(
                             onPressed: () => widget.model.forward(30),
