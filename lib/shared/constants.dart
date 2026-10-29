@@ -1,5 +1,5 @@
 const appName = "RSS Reader";
-const appVersion = '1.0.6+7';
+const appVersion = '1.0.7+8';
 const appId = 'ca.innomatic.rssread';
 
 const developerWebsite = 'https://innomatic.ca';

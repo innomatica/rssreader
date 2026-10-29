@@ -191,7 +191,7 @@ class _ChannelViewState extends State<ChannelView> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('episode has content', style: labelStyle),
+                              // Text('episode has content', style: labelStyle),
                               ListenableBuilder(
                                 listenable: widget.model,
                                 builder: (context, _) {
