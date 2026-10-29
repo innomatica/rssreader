@@ -101,9 +101,11 @@ class Feed {
         );
         // apply namespaces
         episode = _applyNamespaces(episode, namespaces, itemElem);
-        channel.hasContent =
-            episode.content?.isNotEmpty == true ||
-            episode.description?.isNotEmpty == true;
+        channel.hasContent = false;
+        // do not support at the moment
+        // channel.hasContent =
+        //     episode.content?.isNotEmpty == true ||
+        //     episode.description?.isNotEmpty == true;
 
         // the first published is the latest
         latest = latest ?? episode.published;

@@ -21,7 +21,7 @@ String sizeStr(int? size) {
   return "??kb";
 }
 
-String daysAgo(DateTime? date, {bool shortForm = true}) {
+String daysAgo(DateTime? date, {bool shortForm = false}) {
   if (date != null) {
     final days = DateTime.now().difference(date).inDays;
     return days < 1

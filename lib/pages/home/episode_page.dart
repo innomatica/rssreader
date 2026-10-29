@@ -1,12 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import './model.dart';
 import '../../models/episode.dart';
-import '../../pages/home/model.dart';
 import '../../shared/helpers.dart'
     show secsToHhMmSs, sizeStr, mmddHHMM, daysAgo;
 import '../../shared/widgets.dart' show ThumbnailImage;
+
+class EpisodePage extends StatelessWidget {
+  final HomeViewModel model;
+  final bool isPodcast;
+  const new({super.key, required this.model, required this.isPodcast});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: model,
+      builder: (context, _) {
+        final episodes = model.episodes.where((e) => e.isPodcast == isPodcast);
+        return episodes.isNotEmpty
+            ? ListView.separated(
+                key: const PageStorageKey('episode_list_key'),
+                separatorBuilder: (context, _) => Padding(
+                  padding: const .only(bottom: 8.0, left: 8.0, right: 8.0),
+                  child: Divider(indent: 0, endIndent: 0, height: 0),
+                ),
+                itemCount: episodes.length,
+                itemBuilder: (context, index) {
+                  final episode = episodes.elementAt(index);
+                  return Dismissible(
+                    key: ValueKey<int>(episode.id),
+                    direction: DismissDirection.endToStart,
+                    background: SizedBox(),
+                    secondaryBackground: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          Icons.delete_forever_outlined,
+                          color: Colors.redAccent,
+                          size: 30,
+                        ),
+                        SizedBox(width: 40),
+                      ],
+                    ),
+                    onDismissed: (direction) async {
+                      await model.hideEpisode(episode, forceStop: true);
+                    },
+                    child: EpisodeTile(episode: episode, model: model),
+                  );
+                },
+              )
+            : Center(
+                child: isPodcast
+                    ? Icon(
+                        Icons.mic,
+                        size: 100,
+                        color: Theme.of(context).colorScheme.secondary
+                            .withAlpha(100),
+                      )
+                    : Icon(
+                        Icons.newspaper_rounded,
+                        size: 100,
+                        color: Theme.of(context).colorScheme.secondary
+                            .withAlpha(100),
+                      ),
+              );
+      },
+    );
+  }
+}
 
 class EpisodeTile extends StatelessWidget {
   final Episode episode;
@@ -84,8 +146,12 @@ class NewsTile extends StatelessWidget {
         ],
       ),
       // landscape mode
-
-      onTap: () => handleTap(context, episode),
+      onTap: () async {
+        if (episode.link != null &&
+            await canLaunchUrl(Uri.parse(episode.link!))) {
+          launchUrl(Uri.parse(episode.link!));
+        }
+      },
     );
   }
 }
@@ -156,6 +222,8 @@ class PodcastTile extends StatelessWidget {
               episode.mediaDuration != null
                   ? Text(secsToHhMmSs(episode.mediaDuration))
                   : Text(sizeStr(episode.mediaSize)),
+              // space
+              Expanded(child: SizedBox()),
               // download button
               IconButton(
                 icon: ListenableBuilder(
@@ -170,150 +238,11 @@ class PodcastTile extends StatelessWidget {
                     ? () => model.downloadEpisode(episode)
                     : null,
               ),
-              // space
-              Expanded(child: SizedBox()),
-              // rewind, play, ff buttons
-              // back 30 sec
-              IconButton(
-                onPressed: () => model.forward(-30),
-                icon: Icon(Icons.replay_30_rounded),
-              ),
-              IconButton(
-                icon: ListenableBuilder(
-                  listenable: model,
-                  builder: (context, _) {
-                    return model.currentSeqGuid == episode.guid && model.playing
-                        ? Icon(Icons.pause_rounded, size: 32.0)
-                        : Icon(Icons.play_arrow_rounded, size: 32.0);
-                  },
-                ),
-                onPressed: episode.mediaType?.contains('audio') == true
-                    ? () => model.playEpisode(episode)
-                    : null,
-              ),
-              // forward 30 sec
-              IconButton(
-                onPressed: () => model.forward(30),
-                icon: Icon(Icons.forward_30_rounded),
-              ),
             ],
           ),
-          onTap: () => handleTap(context, episode),
+          onTap: () => model.playEpisode(episode),
         );
       },
     );
-  }
-}
-
-// show episode content with full screen dialog
-void handleTap(BuildContext context, Episode episode) {
-  // print('episode:$episode');
-  // return;
-  if (episode.hasContent == true) {
-    // show episode description in html format
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog.fullscreen(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: .symmetric(horizontal: 16.0),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    // episode title
-                    Padding(
-                      padding: .only(top: 60),
-                      child: Text(
-                        episode.title ?? '',
-                        style: TextStyle(fontSize: 20.0),
-                      ),
-                    ),
-                    // episode link button
-                    TextButton(
-                      child: Text(
-                        episode.link ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                      onPressed: () async {
-                        final url = Uri.tryParse(episode.link ?? '');
-                        if (url != null && await canLaunchUrl(url)) {
-                          await launchUrl(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        }
-                      },
-                    ),
-                    // episode content
-                    HtmlWidget(
-                      episode.content ?? episode.description ?? '',
-                      onTapUrl: (url) async {
-                        final Uri uri = Uri.parse(url);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(
-                            uri,
-                            mode: LaunchMode.externalApplication,
-                          );
-                          return true; // Return true if the link action was handled successfully
-                        }
-                        return false; // Return false if it failed to open
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              // app bar like section
-              Positioned(
-                top: 0,
-                left: 8,
-                right: 8,
-                child: Container(
-                  // padding: .only(top: 4.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Row(
-                    spacing: 4.0,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios_new_rounded),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Expanded(
-                        child: Text(
-                          episode.channelTitle ?? '',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      // Text(episode.published.toString()),
-                      Text(daysAgo(episode.published, shortForm: false)),
-                      SizedBox(width: 12.0),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  } else {
-    if (episode.link != null) {
-      // launch link
-      launchUrl(Uri.parse(episode.link!));
-    }
   }
 }

@@ -30,17 +30,17 @@ class HomeViewModel extends ChangeNotifier {
 
   late StreamSubscription _subPlayerState;
   late StreamSubscription _subSeqState;
-  String _episodeType = 'any';
+  // String _episodeType = 'any';
   String _snackMessage = "";
   String? _currentSeqGuid;
-  bool? _playing;
   bool _refreshing = false;
 
   String? get currentSeqGuid => _currentSeqGuid;
   Episode? get currentSeqEpisode =>
       _episodes.where((e) => e.guid == _currentSeqGuid).firstOrNull;
-  bool get playing => _playing == true;
+  bool get playing => _player.playing == true;
   bool get refreshing => _refreshing;
+  ProcessingState? get processingState => _player.processingState;
   List<IndexedAudioSource> get sequence => _sequence;
   double get position => _player.position.inSeconds.toDouble();
   double? get duration => _player.duration?.inSeconds.toDouble();
@@ -52,7 +52,6 @@ class HomeViewModel extends ChangeNotifier {
       _log.fine('playing: ${event.playing}');
       _log.fine('processingState: ${event.processingState}');
       if (event.playing == true) {
-        _playing = true;
         if (event.processingState == ProcessingState.buffering) {
           // playing & buffering
           // seek position: TODO: update bookmark of the episode
@@ -67,7 +66,6 @@ class HomeViewModel extends ChangeNotifier {
         }
         notifyListeners();
       } else {
-        _playing = false;
         if (event.processingState == ProcessingState.ready) {
           // not playing & ready
           // media paused: TODO update bookmark of the episode
@@ -96,30 +94,12 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<Episode> get episodes =>
-      _episodes
-          .where((e) => e.hidden != true)
-          .where(
-            (e) => _episodeType == 'any'
-                ? true
-                : _episodeType == 'podcast'
-                ? e.isPodcast == true
-                : e.isPodcast == false,
-          )
-          .toList()
+      _episodes.where((e) => e.hidden != true).toList()
         ..sort((a, b) => b.published.compareTo(a.published));
   List<Channel> get channels =>
-      _channels
-          .where(
-            (e) => _episodeType == 'any'
-                ? true
-                : _episodeType == 'podcast'
-                ? e.isPodcast == true
-                : e.isPodcast == false,
-          )
-          .toList()
+      _channels.toList()
         ..sort((a, b) => (a.title ?? '').compareTo(b.title ?? ''));
   String get snackMessage => _snackMessage;
-  String get episodeType => _episodeType;
 
   Future<void> load() async {
     // _log.fine('load');
@@ -154,15 +134,6 @@ class HomeViewModel extends ChangeNotifier {
     }
 
     _refreshing = false;
-    notifyListeners();
-  }
-
-  void selectEpisodeType(String newType) {
-    if (_episodeType == newType) {
-      _episodeType = 'any';
-    } else {
-      _episodeType = newType;
-    }
     notifyListeners();
   }
 
@@ -236,5 +207,9 @@ class HomeViewModel extends ChangeNotifier {
 
   Future seekToEnd() async {
     await _player.seek(_player.duration);
+  }
+
+  Future stop() async {
+    await _player.stop();
   }
 }

@@ -125,7 +125,7 @@ class Channel {
             .map((e) => e.value.toString())
             .join(','),
         isPodcast: true,
-        hasContent: true,
+        hasContent: false,
         extras: {
           'id': data['id'],
           'itunesId': data['itunesId'],
