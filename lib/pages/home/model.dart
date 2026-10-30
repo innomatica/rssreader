@@ -32,18 +32,20 @@ class HomeViewModel extends ChangeNotifier {
   late StreamSubscription _subSeqState;
   // String _episodeType = 'any';
   String _snackMessage = "";
-  String? _currentSeqGuid;
+  // String? _currentSeqGuid;
+  MediaItem? _currentTag;
   bool _refreshing = false;
 
-  String? get currentSeqGuid => _currentSeqGuid;
+  // String? get currentSeqGuid => _currentSeqGuid;
+  MediaItem? get currentTag => _currentTag;
   Episode? get currentSeqEpisode =>
-      _episodes.where((e) => e.guid == _currentSeqGuid).firstOrNull;
+      _episodes.where((e) => e.guid == _currentTag?.id).firstOrNull;
   bool get playing => _player.playing == true;
   bool get refreshing => _refreshing;
   ProcessingState? get processingState => _player.processingState;
   List<IndexedAudioSource> get sequence => _sequence;
   double get position => _player.position.inSeconds.toDouble();
-  double? get duration => _player.duration?.inSeconds.toDouble();
+  Duration? get duration => _player.duration;
   Stream<Duration> get positionStream => _player.positionStream;
 
   void _init() async {
@@ -54,21 +56,28 @@ class HomeViewModel extends ChangeNotifier {
       if (event.playing == true) {
         if (event.processingState == ProcessingState.buffering) {
           // playing & buffering
-          // seek position: TODO: update bookmark of the episode
+          // user taps seek button: update bookmark
+          _saveBookmark(currentSeqEpisode, _player.position);
         } else if (event.processingState == ProcessingState.loading) {
           // playing & loading
-          // media loaded: TODO update media size of the episode
+          // media loaded: update media size of the episode
+          _updateDuration(currentSeqEpisode, _player.duration);
         } else if (event.processingState == ProcessingState.completed) {
           // completed
           if (currentSeqEpisode != null) {
-            hideEpisode(currentSeqEpisode!);
+            hideEpisode(currentSeqEpisode!, forceStop: true);
           }
         }
         notifyListeners();
       } else {
         if (event.processingState == ProcessingState.ready) {
           // not playing & ready
-          // media paused: TODO update bookmark of the episode
+          if (_player.position > Duration(seconds: 100)) {
+            // media paused during playing: update bookmark
+            _saveBookmark(currentSeqEpisode, _player.position);
+          } else {
+            // media just loaded: do not update bookmark
+          }
         }
         notifyListeners();
       }
@@ -79,11 +88,31 @@ class HomeViewModel extends ChangeNotifier {
       _log.fine('current index: ${event.currentIndex}');
       // _log.fine('tag:${src?.tag}');
       // _currentSeqGuid = (src?.tag as MediaItem?)?.extras?['guid'];
-      _currentSeqGuid = (src?.tag as MediaItem?)?.id;
+      // _currentSeqGuid = (src?.tag as MediaItem?)?.id;
+      _currentTag = src?.tag as MediaItem?;
       _sequence.clear();
       _sequence.addAll(event.sequence);
       notifyListeners();
     });
+  }
+
+  void _updateDuration(Episode? episode, Duration? duration) {
+    if (episode != null && duration != null) {
+      // update local data
+      episode.mediaDuration = duration.inSeconds;
+      // but not the database for now
+    }
+  }
+
+  Future _saveBookmark(Episode? episode, Duration? position) async {
+    if (episode != null && position != null) {
+      // update local data
+      episode.mediaSeekPos = position.inSeconds;
+      // update database
+      await _feedRepo.updateEpisode(episode.id, {
+        "media_seek_pos": position.inSeconds,
+      });
+    }
   }
 
   @override
@@ -134,9 +163,9 @@ class HomeViewModel extends ChangeNotifier {
     }
     _refreshing = false;
     // FIXME: this doesn't work why?
-    notifyListeners();
+    // notifyListeners();
     // but this does
-    // await load();
+    await load();
   }
 
   void clearSnackMessage() {
@@ -144,7 +173,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future playEpisode(Episode episode) async {
-    if (episode.guid == _currentSeqGuid) {
+    if (episode.guid == _currentTag?.id) {
       return playPause();
     } else {
       // stop current sequence
@@ -160,11 +189,16 @@ class HomeViewModel extends ChangeNotifier {
             id: episode.guid,
             title: episode.title ?? 'title unknown',
             artUri: Uri.tryParse(episode.channelImageUrl ?? ''),
-            extras: {"guid": episode.guid, "title": episode.title ?? "unknown"},
+            extras: {"id": episode.id},
           ),
         );
-        _player.setAudioSource(source);
-        // TODO: apply bookmark here
+        print(episode);
+        await _player.setAudioSource(source);
+        _log.fine('play episide: ${episode.id} -${episode.mediaSeekPos}');
+        if (episode.mediaSeekPos != null) {
+          // apply bookmark
+          await _player.seek(Duration(seconds: episode.mediaSeekPos!));
+        }
         _player.play();
       }
     }
@@ -180,9 +214,15 @@ class HomeViewModel extends ChangeNotifier {
   Future hideEpisode(Episode episode, {bool forceStop = false}) async {
     // NOTE: do not change the order of executions
     episode.hidden = true;
-    await _feedRepo.updateEpisode(episode.id, {'hidden': 1});
+    episode.localMedia = null;
+    episode.mediaSeekPos = 0;
+    await _feedRepo.updateEpisode(episode.id, {
+      'hidden': 1,
+      'local_media': null,
+      'media_seek_pos': null,
+    });
     await _feedRepo.deleteEpisodeMedia(episode);
-    if (_currentSeqGuid == episode.guid && forceStop) {
+    if (episode.guid == _currentTag?.id && forceStop) {
       // NOTE: this will fire notifyListeners()
       await _player.stop();
     } else {

@@ -22,8 +22,14 @@ class EpisodePage extends StatelessWidget {
             ? ListView.separated(
                 key: const PageStorageKey('episode_list_key'),
                 separatorBuilder: (context, _) => Padding(
-                  padding: const .only(bottom: 8.0, left: 8.0, right: 8.0),
-                  child: Divider(indent: 0, endIndent: 0, height: 0),
+                  padding: const .only(bottom: 0.0, left: 8.0, right: 8.0),
+                  child: Divider(
+                    indent: 0,
+                    endIndent: 0,
+                    height: 0,
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withAlpha(50),
+                  ),
                 ),
                 itemCount: episodes.length,
                 itemBuilder: (context, index) {
@@ -168,8 +174,17 @@ class PodcastTile extends StatelessWidget {
       listenable: model,
       builder: (context, _) {
         return ListTile(
-          selected: model.currentSeqGuid == episode.guid,
+          selected: model.currentTag?.id == episode.guid,
+          selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+          selectedTileColor: Theme.of(context).colorScheme.tertiaryContainer
+              .withAlpha(100),
           // thumbnail : channel title / episode title
+          contentPadding: EdgeInsets.only(
+            top: 10,
+            left: 16,
+            right: 16,
+            bottom: 0,
+          ),
           title: Row(
             spacing: 8.0,
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -54,9 +54,8 @@ class _HomeViewState extends State<HomeView> {
     if (_sleepTimer != null && _sleepTimer!.isActive == true) {
       //
       if (timeout < 10) {
-        timeout = 0;
-        widget.model.stop();
         _sleepTimer?.cancel();
+        timeout = 60;
         setState(() {});
       } else if (timeout < 20) {
         timeout = 10;
@@ -67,9 +66,9 @@ class _HomeViewState extends State<HomeView> {
       }
     } else {
       timeout = 60;
-      _sleepTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _sleepTimer = Timer.periodic(Duration(minutes: 1), (timer) {
         timeout = timeout - 1;
-        if (timeout == 0) {
+        if (timeout < 0) {
           widget.model.stop();
           _sleepTimer?.cancel();
         }
@@ -91,9 +90,9 @@ class _HomeViewState extends State<HomeView> {
               return widget.model.playing
                   ? TextButton.icon(
                       icon: Icon(Icons.bedtime_outlined),
-                      label: timeout == 0
-                          ? SizedBox()
-                          : Text(timeout.toString()),
+                      label: _sleepTimer?.isActive == true
+                          ? Text(timeout.toString())
+                          : SizedBox(),
                       iconAlignment: IconAlignment.end,
                       onPressed: () => _handleSleepTimer(),
                     )

@@ -33,6 +33,7 @@ class FeedRepository {
   // }
 
   // feed
+
   Future<Feed?> fetchFeed(String url) async {
     try {
       final res = await http.get(Uri.parse(url));
@@ -81,6 +82,7 @@ class FeedRepository {
   }
 
   // subscription
+
   Future<bool> subscribe(Channel channel) async {
     _log.fine('subscribe');
     final channelId = await createChannel(channel);
@@ -114,6 +116,7 @@ class FeedRepository {
   }
 
   // channel
+
   Future<List<Channel>> getChannels() async {
     try {
       final rows = await _dbSrv.queryAll(
@@ -128,7 +131,6 @@ class FeedRepository {
     }
   }
 
-  // channel
   Future<Channel?> getChannelById(int channelId) async {
     try {
       final row = await _dbSrv.query(

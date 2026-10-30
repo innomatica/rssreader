@@ -6,8 +6,7 @@ import 'package:flutter/material.dart'
     show ImageProvider, AssetImage, FileImage, NetworkImage;
 import 'package:logging/logging.dart';
 
-import '../shared/constants.dart'
-    show appDocPath, chnImgFname, defaultChannelImg, defaultEpisodeImg;
+import '../shared/constants.dart';
 
 class Episode {
   int id;

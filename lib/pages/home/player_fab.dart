@@ -42,11 +42,19 @@ class _PlayerFABState extends State<PlayerFAB> {
     _timer?.cancel();
   }
 
+  // provides safe value for the slider position during media switching
+  double safeSliderPos() =>
+      widget.model.duration != null &&
+          sliderPos < widget.model.duration!.inSeconds.toDouble()
+      ? sliderPos
+      : 0.0;
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: widget.model,
       builder: (context, _) {
+        final buttonColor = Theme.of(context).colorScheme.onPrimaryContainer;
         return widget.model.processingState == ProcessingState.idle
             ? SizedBox()
             : Container(
@@ -89,10 +97,15 @@ class _PlayerFABState extends State<PlayerFAB> {
                                           .toDouble();
                                     }
                                     return Slider(
-                                      value: sliderPos,
-                                      max: widget.model.duration ?? 100.0,
+                                      value: safeSliderPos(),
+                                      max:
+                                          widget.model.duration?.inSeconds
+                                              .toDouble() ??
+                                          100000.0,
                                       divisions:
-                                          widget.model.duration?.toInt() ?? 100,
+                                          widget.model.duration?.inSeconds
+                                              .toInt() ??
+                                          100000,
                                       label: secsToHhMmSs(sliderPos.toInt()),
                                       onChanged: (value) {
                                         setState(() {});
@@ -116,7 +129,7 @@ class _PlayerFABState extends State<PlayerFAB> {
                           // media size
                           Text(
                             secsToHhMmSs(
-                              widget.model.duration?.toInt() ?? 3600,
+                              widget.model.duration?.inSeconds ?? 3600,
                             ),
                             style: TextStyle(fontSize: 12),
                           ),
@@ -129,11 +142,17 @@ class _PlayerFABState extends State<PlayerFAB> {
                         children: [
                           IconButton(
                             onPressed: showSlider,
-                            icon: Icon(Icons.more_vert_rounded),
+                            icon: Icon(
+                              Icons.more_vert_rounded,
+                              color: buttonColor,
+                            ),
                           ),
                           IconButton(
                             onPressed: () => widget.model.seekToStart(),
-                            icon: Icon(Icons.skip_previous_rounded),
+                            icon: Icon(
+                              Icons.skip_previous_rounded,
+                              color: buttonColor,
+                            ),
                           ),
                           IconButton(
                             onPressed: () => widget.model.forward(-30),
@@ -142,21 +161,30 @@ class _PlayerFABState extends State<PlayerFAB> {
                           IconButton(
                             onPressed: () => widget.model.playPause(),
                             icon: widget.model.playing
-                                ? Icon(Icons.pause_rounded)
-                                : Icon(Icons.play_arrow_rounded),
+                                ? Icon(Icons.pause_rounded, color: buttonColor)
+                                : Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: buttonColor,
+                                  ),
                             iconSize: 36,
                           ),
                           IconButton(
                             onPressed: () => widget.model.forward(30),
-                            icon: Icon(Icons.forward_30_rounded),
+                            icon: Icon(
+                              Icons.forward_30_rounded,
+                              color: buttonColor,
+                            ),
                           ),
                           IconButton(
                             onPressed: () => widget.model.seekToEnd(),
-                            icon: Icon(Icons.skip_next_rounded),
+                            icon: Icon(
+                              Icons.skip_next_rounded,
+                              color: buttonColor,
+                            ),
                           ),
                           IconButton(
                             onPressed: () => widget.model.stop(),
-                            icon: Icon(Icons.stop_rounded),
+                            icon: Icon(Icons.stop_rounded, color: buttonColor),
                           ),
                         ],
                       ),
