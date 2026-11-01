@@ -29,7 +29,7 @@ class SidePanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'free and open-source',
+                  'get things done with minimal footprint',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 16,
