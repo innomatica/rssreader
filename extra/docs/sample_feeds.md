@@ -27,9 +27,10 @@
 
 # Podcasts
 
+- [Because News](https://www.cbc.ca/podcasting/includes/becausenews.xml)
 - [CBC Radio Blogs and Others](https://www.cbc.ca/rss/blogother/)
 - [CBC Podcasts](https://www.cbc.ca/listen/cbc-podcasts)
-- [Late Night Linux](https://latenightlinux.com/feeds/)
+- [Laugh Out Loud](http://www.cbc.ca/podcasting/includes/laughoutloud.xml)
 - [NPR Podcasts and Shows](https://www.npr.org/podcasts-and-shows/)
-- [Radiolab](https://feeds.simplecast.com/EmVW7VGp)
-- [Sean Carroll's Mindscape](https://rss.libsyn.com/shows/604590/destinations/5288840.xml)
+- [The Debaters](https://www.cbc.ca/webfeed/rss/rss-debaters)
+
