@@ -67,9 +67,14 @@ class ChannelViewModel extends ChangeNotifier {
 
   Future showHideEpisode(Episode episode) async {
     if (episode.hidden == true) {
-      await _feedRepo.updateEpisode(episode.id, {'hidden': 0});
+      // unhide AND reset bookmark
+      await _feedRepo.updateEpisode(episode.id, {
+        'hidden': 0,
+        "media_seek_pos": null,
+      });
       episode.hidden = false;
     } else {
+      // hide
       await _feedRepo.updateEpisode(episode.id, {'hidden': 1});
       episode.hidden = true;
     }
