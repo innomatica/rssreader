@@ -186,27 +186,27 @@ class _ChannelViewState extends State<ChannelView> {
                               ),
                             ],
                           ),
-                          // has content
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Text('episode has content', style: labelStyle),
-                              ListenableBuilder(
-                                listenable: widget.model,
-                                builder: (context, _) {
-                                  return Switch(
-                                    value: widget.model.hasContent,
-                                    onChanged: (value) {
-                                      widget.model.update({
-                                        'has_content': value,
-                                      });
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                          // // has content
+                          // Row(
+                          //   crossAxisAlignment: CrossAxisAlignment.center,
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     Text('episode has content', style: labelStyle),
+                          //     ListenableBuilder(
+                          //       listenable: widget.model,
+                          //       builder: (context, _) {
+                          //         return Switch(
+                          //           value: widget.model.hasContent,
+                          //           onChanged: (value) {
+                          //             widget.model.update({
+                          //               'has_content': value,
+                          //             });
+                          //           },
+                          //         );
+                          //       },
+                          //     ),
+                          //   ],
+                          // ),
                           // episode list
                           ListView.builder(
                             shrinkWrap: true,
