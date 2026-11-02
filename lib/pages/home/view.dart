@@ -137,7 +137,7 @@ class _HomeViewState extends State<HomeView> {
         destinations: const <NavigationDestination>[
           NavigationDestination(
             icon: Icon(Icons.newspaper_rounded),
-            label: 'News',
+            label: 'Articles',
           ),
           NavigationDestination(icon: Icon(Icons.mic), label: 'Podcasts'),
           NavigationDestination(
