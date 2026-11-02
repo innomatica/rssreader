@@ -65,6 +65,7 @@ class _PlayerFABState extends State<PlayerFAB> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: _showSlider
+                    // slider
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -75,15 +76,21 @@ class _PlayerFABState extends State<PlayerFAB> {
                             stream: widget.model.positionStream.distinct(
                               (prev, next) => prev.inSeconds == next.inSeconds,
                             ),
-                            builder: (context, snapshot) => Text(
-                              secsToHhMmSs(snapshot.data?.inSeconds),
-                              style: TextStyle(fontSize: 12),
+                            builder: (context, snapshot) => SizedBox(
+                              width: 60,
+                              child: Text(
+                                secsToHhMmSs(snapshot.data?.inSeconds),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                             ),
                           ),
                           // slider
                           SizedBox(
-                            height: 56,
-                            width: 200,
+                            height: 52,
+                            width: 220,
                             child: StreamBuilder(
                               stream: widget.model.positionStream.distinct(
                                 (prev, next) =>
@@ -127,25 +134,30 @@ class _PlayerFABState extends State<PlayerFAB> {
                             ),
                           ),
                           // media size
-                          Text(
-                            secsToHhMmSs(
-                              widget.model.duration?.inSeconds ?? 3600,
+                          SizedBox(
+                            width: 60,
+                            child: Text(
+                              textAlign: TextAlign.right,
+                              secsToHhMmSs(
+                                widget.model.duration?.inSeconds ?? 3600,
+                              ),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                            style: TextStyle(fontSize: 12),
                           ),
                           // Text('end', style: TextStyle(fontSize: 12)),
                         ],
                       )
+                    // audio buttons
                     : Row(
                         mainAxisSize: MainAxisSize.min,
                         spacing: 0,
                         children: [
                           IconButton(
-                            onPressed: showSlider,
-                            icon: Icon(
-                              Icons.more_vert_rounded,
-                              color: buttonColor,
-                            ),
+                            onPressed: () => widget.model.stop(),
+                            icon: Icon(Icons.stop_rounded, color: buttonColor),
                           ),
                           IconButton(
                             onPressed: () => widget.model.seekToStart(),
@@ -183,8 +195,11 @@ class _PlayerFABState extends State<PlayerFAB> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () => widget.model.stop(),
-                            icon: Icon(Icons.stop_rounded, color: buttonColor),
+                            onPressed: showSlider,
+                            icon: Icon(
+                              Icons.more_vert_rounded,
+                              color: buttonColor,
+                            ),
                           ),
                         ],
                       ),

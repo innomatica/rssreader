@@ -36,19 +36,22 @@ class ThumbnailImage extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadiusGeometry.circular(borderRadius),
       child: image != null
-          ? FadeInImage(
-              placeholder: MemoryImage(placeholderImage),
-              fadeInDuration: Duration(milliseconds: 200),
-              fadeOutDuration: Duration(milliseconds: 50),
-              image: image!,
-              width: width,
-              height: height,
-              fit: fit,
-              imageErrorBuilder: (context, error, stackTrace) => Image.asset(
-                defaultChannelImg,
+          ? Opacity(
+              opacity: opacity,
+              child: FadeInImage(
+                placeholder: MemoryImage(placeholderImage),
+                fadeInDuration: Duration(milliseconds: 200),
+                fadeOutDuration: Duration(milliseconds: 50),
+                image: image!,
                 width: width,
                 height: height,
                 fit: fit,
+                imageErrorBuilder: (context, error, stackTrace) => Image.asset(
+                  defaultChannelImg,
+                  width: width,
+                  height: height,
+                  fit: fit,
+                ),
               ),
             )
           : Image.asset(
@@ -56,6 +59,7 @@ class ThumbnailImage extends StatelessWidget {
               width: width,
               height: height,
               fit: fit,
+              opacity: AlwaysStoppedAnimation(0.5),
             ),
     );
   }

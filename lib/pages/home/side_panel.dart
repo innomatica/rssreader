@@ -18,6 +18,7 @@ class SidePanel extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8.0,
               children: [
                 // app name
                 Text(
@@ -25,15 +26,7 @@ class SidePanel extends StatelessWidget {
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 32,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                Text(
-                  'get things done with minimal footprint',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 16,
-                    // fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 // app version
@@ -43,6 +36,14 @@ class SidePanel extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'get things done with minimal footprint',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 14,
+                    // fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -74,20 +75,12 @@ class SidePanel extends StatelessWidget {
           ),
           // attributions
           ListTile(
-            // leading: const Icon(Icons.web_rounded),
-            title: const Text('Attributions'),
-            subtitle: Column(
-              children: [
-                ListTile(
-                  title: const Text('Podcast Index'),
-                  onTap: () => launchUrl(Uri.parse(pcIdxSite)),
-                ),
-                ListTile(
-                  title: const Text('FlatIcon'),
-                  onTap: () => launchUrl(Uri.parse(pcIdxSite)),
-                ),
-              ],
-            ),
+            title: const Text('Podcast Index'),
+            onTap: () => launchUrl(Uri.parse(pcIdxSite)),
+          ),
+          ListTile(
+            title: const Text('FlatIcon'),
+            onTap: () => launchUrl(Uri.parse(flatIconSite)),
           ),
         ],
       ),

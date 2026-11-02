@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../shared/helpers.dart' show daysAgo;
 import '../../shared/widgets.dart' show ThumbnailImage;
@@ -75,24 +76,11 @@ class _ChannelViewState extends State<ChannelView> {
                       if (context.mounted) context.go("/");
                     },
                   ),
-                  title: ListenableBuilder(
-                    listenable: widget.model,
-                    builder: (context, _) {
-                      return Text(widget.model.channel?.title ?? '');
-                    },
-                  ),
                   actions: [
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: .symmetric(horizontal: 16.0),
-                        minimumSize: Size(50, 30),
-                        backgroundColor: Theme.of(context).colorScheme.tertiary,
-                        foregroundColor: Theme.of(context)
-                            .colorScheme
-                            .onTertiary,
-                      ),
+                    TextButton.icon(
+                      icon: Icon(Icons.delete),
+                      label: Text('cancel'),
                       onPressed: () => widget.model.unsubscribe(),
-                      child: Text('cancel'),
                     ),
                   ],
                 ),
@@ -101,13 +89,35 @@ class _ChannelViewState extends State<ChannelView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // channel thumbnail
                       ListenableBuilder(
                         listenable: widget.model,
                         builder: (context, _) {
-                          return ThumbnailImage(
-                            widget.model.channel?.image,
-                            height: 180.0,
-                            width: double.maxFinite,
+                          return GestureDetector(
+                            onTap: () {
+                              launchUrl(
+                                Uri.parse(widget.model.channel?.link ?? ''),
+                              );
+                            },
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                ThumbnailImage(
+                                  widget.model.channel?.image,
+                                  height: 150.0,
+                                  width: double.maxFinite,
+                                  opacity: 0.25,
+                                ),
+                                Text(
+                                  widget.model.channel?.title ?? '',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight(900),
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -170,7 +180,7 @@ class _ChannelViewState extends State<ChannelView> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('podcast channel', style: labelStyle),
+                              Text('podcast', style: labelStyle),
                               ListenableBuilder(
                                 listenable: widget.model,
                                 builder: (context, _) {
@@ -218,13 +228,14 @@ class _ChannelViewState extends State<ChannelView> {
                                 title: Text(
                                   daysAgo(episode.published),
                                   style: TextStyle(
+                                    fontWeight: FontWeight.w300,
                                     color: Theme.of(context)
                                         .colorScheme
                                         .secondary,
                                   ),
                                 ),
                                 subtitle: Text(episode.title ?? ''),
-                                dense: true,
+                                visualDensity: VisualDensity.compact,
                                 trailing: ListenableBuilder(
                                   listenable: widget.model,
                                   builder: (context, _) {
@@ -233,6 +244,9 @@ class _ChannelViewState extends State<ChannelView> {
                                         episode.hidden == true
                                             ? Icons.visibility_off_rounded
                                             : Icons.visibility_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary,
                                       ),
                                       onPressed: () =>
                                           widget.model.showHideEpisode(episode),

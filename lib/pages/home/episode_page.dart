@@ -27,8 +27,8 @@ class EpisodePage extends StatelessWidget {
                     indent: 0,
                     endIndent: 0,
                     height: 0,
-                    color: Theme.of(context).colorScheme.onSurface
-                        .withAlpha(50),
+                    color: Theme.of(context).colorScheme.tertiaryContainer
+                        .withAlpha(100),
                   ),
                 ),
                 itemCount: episodes.length,
@@ -175,7 +175,7 @@ class PodcastTile extends StatelessWidget {
       builder: (context, _) {
         return ListTile(
           selected: model.currentTag?.id == episode.guid,
-          selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+          selectedColor: Theme.of(context).colorScheme.onTertiaryContainer,
           selectedTileColor: Theme.of(context).colorScheme.tertiaryContainer
               .withAlpha(100),
           // thumbnail : channel title / episode title

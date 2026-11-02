@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rssread/pages/home/player_fab.dart';
 
+import '../../shared/constants.dart' show appName;
 import './channel_page.dart';
 import './episode_page.dart';
 import './model.dart';
@@ -52,20 +53,18 @@ class _HomeViewState extends State<HomeView> {
 
   void _handleSleepTimer() {
     if (_sleepTimer != null && _sleepTimer!.isActive == true) {
-      //
-      if (timeout < 10) {
+      if (timeout <= 10) {
         _sleepTimer?.cancel();
         timeout = 60;
-        setState(() {});
-      } else if (timeout < 20) {
+      } else if (timeout <= 20) {
         timeout = 10;
-      } else if (timeout < 30) {
+      } else if (timeout <= 30) {
         timeout = 20;
       } else {
         timeout = 30;
       }
     } else {
-      timeout = 60;
+      timeout = 30;
       _sleepTimer = Timer.periodic(Duration(minutes: 1), (timer) {
         timeout = timeout - 1;
         if (timeout < 0) {
@@ -75,13 +74,14 @@ class _HomeViewState extends State<HomeView> {
         setState(() {});
       });
     }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // title: const Text(appName),
+        title: const Text(appName),
         actions: [
           // sleep timer
           ListenableBuilder(
@@ -89,7 +89,11 @@ class _HomeViewState extends State<HomeView> {
             builder: (context, _) {
               return widget.model.playing
                   ? TextButton.icon(
-                      icon: Icon(Icons.bedtime_outlined),
+                      icon: Icon(
+                        _sleepTimer?.isActive == true
+                            ? Icons.bedtime_rounded
+                            : Icons.bedtime_outlined,
+                      ),
                       label: _sleepTimer?.isActive == true
                           ? Text(timeout.toString())
                           : SizedBox(),
