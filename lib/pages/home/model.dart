@@ -212,7 +212,9 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future hideEpisode(Episode episode, {bool forceStop = false}) async {
-    // NOTE: do not change the order of executions
+    // delete local media first
+    await _feedRepo.deleteEpisodeMedia(episode);
+    // then update media entry
     episode.hidden = true;
     episode.localMedia = null;
     episode.mediaSeekPos = 0;
@@ -221,7 +223,6 @@ class HomeViewModel extends ChangeNotifier {
       'local_media': null,
       'media_seek_pos': null,
     });
-    await _feedRepo.deleteEpisodeMedia(episode);
     if (episode.guid == _currentTag?.id && forceStop) {
       // NOTE: this will fire notifyListeners()
       await _player.stop();
